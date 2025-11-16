@@ -1,6 +1,5 @@
-package com.codejourney;
+package com.codejourney.backend;
 
-import com.codejourney.backend.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
