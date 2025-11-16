@@ -28,11 +28,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Allow access to static frontend files
-                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**").permitAll()
-                        // Allow access to auth endpoints
+                        // Allow access to static resources (The Frontend)
+                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        // Allow access to Auth endpoints
                         .requestMatchers("/api/register", "/api/login").permitAll()
-                        // All other API requests need login
+                        // Secure everything else
                         .anyRequest().authenticated()
                 );
         return http.build();

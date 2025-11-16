@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeJourney | Professional Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #cbd5e1; }
+        .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar-link.active { background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); border-left: 3px solid #38bdf8; color: #38bdf8; }
+        pre { background-color: #111827; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; font-family: 'Fira Code', monospace; border: 1px solid #374151; }
+        .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal.open { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal.open .modal-content { transform: scale(1); }
+    </style>
+</head>
+<body class="antialiased h-screen overflow-hidden flex flex-col">
+
+<div id="authContainer" class="flex-grow flex items-center justify-center p-6 bg-slate-900 relative">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
+
+    <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1>
+            <p class="text-slate-400 mt-2 text-sm">Master backend engineering step-by-step</p>
+        </div>
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-sky-900/20 transition-all transform hover:-translate-y-0.5">Sign In</button>
+        </form>
+        <p id="loginError" class="text-red-400 text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a>
+        </div>
+    </div>
+
+    <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 hidden">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text">Join Us</h1>
+            <p class="text-slate-400 mt-2 text-sm">Start your professional journey today</p>
+        </div>
+        <form id="registerForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Min. 6 characters" required>
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-emerald-900/20 transition-all">Create Account</button>
+        </form>
+        <p id="registerMessage" class="text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<div id="mainAppContent" class="hidden h-screen flex overflow-hidden bg-slate-900">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex-col hidden md:flex">
+        <div class="p-6 border-b border-slate-800">
+            <span class="text-2xl font-bold gradient-text">CodeJourney</span>
+            <span class="text-xs block text-slate-500 mt-1">PRO EDITION</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
+            <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-link active flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Dashboard</a>
+            <a href="#" onclick="switchTab('java')" id="nav-java" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Java Core</a>
+            <a href="#" onclick="switchTab('python')" id="nav-python" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Python Scripting</a>
+            <a href="#" onclick="switchTab('sql')" id="nav-sql" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Database (SQL)</a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <button id="logoutBtn" class="w-full text-red-400 text-sm hover:text-red-300">Logout</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <div id="contentArea" class="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
+            <div id="view-dashboard" class="view-section">
+                <div class="mb-8"><h2 class="text-3xl font-bold text-white">Welcome back, <span id="userEmailDisplay" class="text-sky-400">Coder</span></h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl"><div class="text-slate-400 text-sm mb-1">Status</div><div class="text-3xl font-bold text-white">Active</div></div>
+                </div>
+            </div>
+
+            <div id="view-java" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Java Programming</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-sky-400">Hello World</h3><button data-logic="logic1" class="logic-btn text-xs bg-slate-700 px-3 py-1 rounded text-white">Explain</button></div>
+                    <pre><code class="language-java">public class Main { public static void main(String[] args) { System.out.println("Hello"); } }</code></pre>
+                </div>
+            </div>
+
+            <div id="view-python" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Python Programming</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-yellow-400">Dictionary</h3></div>
+                    <pre><code class="language-python">data = {"id": 1, "name": "CodeJourney"}</code></pre>
+                </div>
+            </div>
+
+            <div id="view-sql" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">SQL Database</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-teal-400">SELECT Statement</h3></div>
+                    <pre><code class="language-sql">SELECT * FROM users WHERE is_admin = true;</code></pre>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="logicModal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="modal-content bg-slate-800 border border-sky-500/30 w-full max-w-2xl rounded-2xl p-8 shadow-2xl relative">
+        <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
+        <h3 id="logicTitle" class="text-2xl font-bold text-sky-400 mb-4">Logic Explanation</h3>
+        <div id="logicBody" class="text-slate-300 leading-relaxed text-lg space-y-4"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "/api"; // Relative URL is critical for Monolith deployment
+    const logicData = {
+        logic1: "The <b>main method</b> is the entry point of any Java application. The JVM looks for this specific signature to start execution."
+    };
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const activeLink = document.getElementById(`nav-${tabName}`);
+        if(activeLink) activeLink.classList.add('active');
+
+        document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+        const targetView = document.getElementById(`view-${tabName}`);
+        if(targetView) targetView.classList.remove('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const authContainer = document.getElementById('authContainer');
+        const mainApp = document.getElementById('mainAppContent');
+
+        if(localStorage.getItem('isLoggedIn') === 'true') {
+            authContainer.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail') || 'Coder';
+        }
+
+        document.getElementById('showRegisterLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        });
+
+        document.getElementById('showLoginLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const msg = document.getElementById('registerMessage');
+            msg.textContent = "Processing...";
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    msg.textContent = "Success! Please Login.";
+                    msg.classList.add('text-green-400');
+                } else {
+                    msg.textContent = data.error || "Error occurred.";
+                }
+            } catch (err) { msg.textContent = "Connection Error"; }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const msg = document.getElementById('loginError');
+            msg.textContent = "Authenticating...";
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', data.email);
+                    window.location.reload();
+                } else {
+                    msg.textContent = data.error || "Invalid credentials.";
+                }
+            } catch (err) { msg.textContent = "Connection Error"; }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.reload();
+        });
+
+        const modal = document.getElementById('logicModal');
+        document.querySelectorAll('.logic-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.target.dataset.logic;
+                document.getElementById('logicBody').innerHTML = logicData[key] || "Details coming soon.";
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+    });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeJourney | Professional Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #cbd5e1; }
+        .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar-link.active { background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); border-left: 3px solid #38bdf8; color: #38bdf8; }
+        pre { background-color: #111827; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; font-family: 'Fira Code', monospace; border: 1px solid #374151; }
+        .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .modal.open { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal.open .modal-content { transform: scale(1); }
+    </style>
+</head>
+<body class="antialiased h-screen overflow-hidden flex flex-col">
+
+<div id="authContainer" class="flex-grow flex items-center justify-center p-6 bg-slate-900 relative">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20"></div>
+
+    <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1>
+            <p class="text-slate-400 mt-2 text-sm">Master backend engineering step-by-step</p>
+        </div>
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-sky-900/20 transition-all transform hover:-translate-y-0.5">Sign In</button>
+        </form>
+        <p id="loginError" class="text-red-400 text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a>
+        </div>
+    </div>
+
+    <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 hidden">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text">Join Us</h1>
+            <p class="text-slate-400 mt-2 text-sm">Start your professional journey today</p>
+        </div>
+        <form id="registerForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Min. 6 characters" required>
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-emerald-900/20 transition-all">Create Account</button>
+        </form>
+        <p id="registerMessage" class="text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<div id="mainAppContent" class="hidden h-screen flex overflow-hidden bg-slate-900">
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex-col hidden md:flex">
+        <div class="p-6 border-b border-slate-800">
+            <span class="text-2xl font-bold gradient-text">CodeJourney</span>
+            <span class="text-xs block text-slate-500 mt-1">PRO EDITION</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
+            <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-link active flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Dashboard</a>
+            <a href="#" onclick="switchTab('java')" id="nav-java" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Java Core</a>
+            <a href="#" onclick="switchTab('python')" id="nav-python" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Python Scripting</a>
+            <a href="#" onclick="switchTab('sql')" id="nav-sql" class="sidebar-link flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors">Database (SQL)</a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <button id="logoutBtn" class="w-full text-red-400 text-sm hover:text-red-300">Logout</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <div id="contentArea" class="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
+            <div id="view-dashboard" class="view-section">
+                <div class="mb-8"><h2 class="text-3xl font-bold text-white">Welcome back, <span id="userEmailDisplay" class="text-sky-400">Coder</span></h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-xl"><div class="text-slate-400 text-sm mb-1">Status</div><div class="text-3xl font-bold text-white">Active</div></div>
+                </div>
+            </div>
+
+            <div id="view-java" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Java Programming</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 mb-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-sky-400">Hello World</h3><button data-logic="logic1" class="logic-btn text-xs bg-slate-700 px-3 py-1 rounded text-white">Explain</button></div>
+                    <pre><code class="language-java">public class Main { public static void main(String[] args) { System.out.println("Hello"); } }</code></pre>
+                </div>
+            </div>
+
+            <div id="view-python" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">Python Programming</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-yellow-400">Dictionary</h3></div>
+                    <pre><code class="language-python">data = {"id": 1, "name": "CodeJourney"}</code></pre>
+                </div>
+            </div>
+
+            <div id="view-sql" class="view-section hidden">
+                <h2 class="text-3xl font-bold text-white mb-6">SQL Database</h2>
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6">
+                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-teal-400">SELECT Statement</h3></div>
+                    <pre><code class="language-sql">SELECT * FROM users WHERE is_admin = true;</code></pre>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="logicModal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="modal-content bg-slate-800 border border-sky-500/30 w-full max-w-2xl rounded-2xl p-8 shadow-2xl relative">
+        <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
+        <h3 id="logicTitle" class="text-2xl font-bold text-sky-400 mb-4">Logic Explanation</h3>
+        <div id="logicBody" class="text-slate-300 leading-relaxed text-lg space-y-4"></div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "/api"; // Relative URL is critical for Monolith deployment
+    const logicData = {
+        logic1: "The <b>main method</b> is the entry point of any Java application. The JVM looks for this specific signature to start execution."
+    };
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        const activeLink = document.getElementById(`nav-${tabName}`);
+        if(activeLink) activeLink.classList.add('active');
+
+        document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+        const targetView = document.getElementById(`view-${tabName}`);
+        if(targetView) targetView.classList.remove('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const authContainer = document.getElementById('authContainer');
+        const mainApp = document.getElementById('mainAppContent');
+
+        if(localStorage.getItem('isLoggedIn') === 'true') {
+            authContainer.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail') || 'Coder';
+        }
+
+        document.getElementById('showRegisterLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+        });
+
+        document.getElementById('showLoginLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const msg = document.getElementById('registerMessage');
+            msg.textContent = "Processing...";
+
+            try {
+                const res = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    msg.textContent = "Success! Please Login.";
+                    msg.classList.add('text-green-400');
+                } else {
+                    msg.textContent = data.error || "Error occurred.";
+                }
+            } catch (err) { msg.textContent = "Connection Error"; }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const msg = document.getElementById('loginError');
+            msg.textContent = "Authenticating...";
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', data.email);
+                    window.location.reload();
+                } else {
+                    msg.textContent = data.error || "Invalid credentials.";
+                }
+            } catch (err) { msg.textContent = "Connection Error"; }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.reload();
+        });
+
+        const modal = document.getElementById('logicModal');
+        document.querySelectorAll('.logic-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.target.dataset.logic;
+                document.getElementById('logicBody').innerHTML = logicData[key] || "Details coming soon.";
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+    });
+</script>
+</body>
+</html>

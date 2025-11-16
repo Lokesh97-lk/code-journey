@@ -1,5 +1,6 @@
-package com.codejourney;
+package com.codejourney.backend;
 
+import com.codejourney.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class UserController {
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(password));
 
-        // Auto-admin for your specific email
+        // Auto-admin Logic
         if ("lokesh972007@gmail.com".equalsIgnoreCase(email)) {
             newUser.setAdmin(true);
         }
