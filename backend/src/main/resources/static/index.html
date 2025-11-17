@@ -196,21 +196,17 @@
 
     // --- 1. DATA STORE (LOGIC & EXAMPLES) ---
 
-    // Simple explanations for all code snippets
     const logicData = {
-        // Python
         "py1": "This is string slicing. `[::-1]` means 'start at the end, go to the beginning, and move 1 step back'. It's a fast way to reverse any string.",
         "py2": "This is an 'inplace swap'. Python evaluates the right side (`b, a + 2`) first. So `b` (5) and `a + 2` (12) are calculated, and *then* assigned to `a` and `b` at the same time.",
         "py3": "The `|` (pipe) operator is a new, clean way to merge two dictionaries (available in Python 3.9+).",
         "py4": "`.setdefault(key, 0)` is a safe way to access a dictionary. It means: 'Try to get the key. If it doesn't exist, create it with a value of 0, and then return it.' This avoids a `KeyError`.",
-        "py5": "Regex (Regular Expressions) are for finding patterns. `\\d{10}` means 'find exactly 10 digits'. `(0)?` and `(\\+44)?` mean the "0" or "+44" prefix is optional.",
+        "py5": "Regex (Regular Expressions) are for finding patterns. `\\d{10}` means 'find exactly 10 digits'. `(0)?` and `(\\+44)?` mean the '0' or '+44' prefix is optional.",
         "py6": "The `|` (pipe) in regex means 'OR'. This pattern looks for the word 'Super' followed by *either* 'man', 'woman', or 'human'.",
         "py7": "`set(list)` converts a list into a 'set', which is an unordered collection of *unique* items. You can use math operations on sets, like subtraction (`-`) or symmetric difference (`^`) to find differences.",
         "py8": "A palindrome reads the same forwards and backwards. `.casefold()` removes all capitalization. `reversed(str)` creates a reverse version. We compare the `list()` of both to see if they match.",
         "py9": "A 'hash' is a unique digital fingerprint for a file. This code reads a file in 'chunks' (1024 bytes at a time) and updates the hash object. This is memory-efficient for very large files.",
         "py10": "This is a 'list comprehension' nested inside another. It means: 'For each `sublist` in `my_list`, loop `num` in that `sublist`, and add `num` to the new `flat_list`.'",
-
-        // C++
         "cpp1": "`cout` (Console Out) is used to print to the screen. `cin` (Console In) is used to read a user's keyboard input and store it in the `number` variable.",
         "cpp2": "In C++, the `/` operator (when used with integers) performs 'integer division', which gives the quotient (how many times it fits). The `%` (modulo) operator gives the remainder.",
         "cpp3": "This uses boolean logic. `isLowercaseVowel` becomes `true` (1) if `c` matches any of the lowercase vowels. `!isalpha(c)` checks if the character is *not* in the alphabet.",
@@ -221,8 +217,6 @@
         "cpp8": "This code loops through every character (`line[i]`) of the input string. It checks if the character is in the alphabet (a-z or A-Z). If it is, it's added to a new `temp` string, effectively filtering out all other characters.",
         "cpp9": "This loops through a string and checks every character. If the character (`str[i]`) matches the `checkCharacter` ('a'), it increases the `count` by one.",
         "cpp10": "A prime number is only divisible by 1 and itself. The `isPrime` function checks this by trying to divide `n` by every number from 2 up to `n/2`. If it finds *any* divisor, it returns `false`.",
-
-        // SQL
         "sql1": "`SELECT` is used to fetch data. `amount + 100` doesn't change the database; it just creates a new temporary column in the output. `AS total_amount` renames that new column.",
         "sql2": "This subtracts 20 from the `amount` for each row, just for the output. The `AS` keyword renames the column.",
         "sql3": "This multiplies the `amount` by 4 for each row in the output. The `AS` keyword renames the column.",
@@ -230,8 +224,6 @@
         "sql5": "A 'Stored Procedure' is a pre-compiled set of SQL commands saved in the database. This creates a procedure named `ctr_customers` that takes one input (`ctr`) and finds all customers from that country.",
         "sql6": "This procedure takes two inputs, `cus_id` (customer ID) and `max_amount`. It uses a `JOIN` to combine `Customers` and `Orders` tables and then filters the results.",
         "sql7": "The `BETWEEN` operator is a shortcut for filtering a range. It's the same as `WHERE amount >= 200 AND amount <= 600`.",
-
-        // Java
         "java1": "This is the Java version of the C++ quadratic equation solver. It uses `Math.sqrt()` to find the square root and `discriminant` to check for real or complex roots.",
         "java2": "A `for` loop is set up to run 10 times. `printf` is used for 'formatted printing', where `%d` is a placeholder for an integer. It replaces `num`, `i`, and `num * i` in order.",
         "java3": "A `switch` statement is a clean alternative to many `if-else` statements. It checks the `operator` variable and jumps to the matching `case` (e.g., `case '+':`). `break;` stops it from falling through to the next case.",
@@ -241,7 +233,7 @@
         "java7": "A 2D array (`int[][]`) is an array of arrays, perfect for representing a grid or matrix. This code loops through each row (`i`) and each column (`j`) to add the elements from the two matrices."
     };
 
-    // All the new code examples
+    // --- CRITICAL FIX: Use backticks (`) for all code strings ---
     const codeExamples = {
         java: [
             { id: "java1", title: "1. Quadratic Equation", code: `public class Main {\n  public static void main(String[] args) {\n    double a = 2.3, b = 4, c = 5.6;\n    double root1, root2;\n    double discriminant = b * b - 4 * a * c;\n    if (discriminant > 0) {\n      root1 = (-b + Math.sqrt(discriminant)) / (2 * a);\n      root2 = (-b - Math.sqrt(discriminant)) / (2 * a);\n      System.out.format("root1 = %.2f and root2 = %.2f", root1, root2);\n    }\n    else if (discriminant == 0) {\n      root1 = root2 = -b / (2 * a);\n      System.out.format("root1 = root2 = %.2f;", root1);\n    }\n    else {\n      double real = -b / (2 * a);\n      double imaginary = Math.sqrt(-discriminant) / (2 * a);\n      System.out.format("root1 = %.2f+%.2fi", real, imaginary);\n      System.out.format("\\nroot2 = %.2f-%.2fi", real, imaginary);\n    }\n  }\n}` },
@@ -281,15 +273,13 @@
             { id: "sql2", title: "2. Subtraction Operator", code: `SELECT item, amount, amount - 20 AS offer_price\nFROM Orders;` },
             { id: "sql3", title: "3. Multiplication Operator", code: `SELECT item, amount, amount * 4 AS total_amount\nFROM Orders;` },
             { id: "sql4", title: "4. Division Operator", code: `SELECT item, amount, amount / 2 AS half_amount\nFROM Orders;` },
-            { id: "sql5", title: "5. Parameterized Procedure", code: `DELIMITER //\nCREATE PROCEDURE ctr_customers (ctr VARCHAR(50))\nBEGIN\n  SELECT customer_id, first_name\n  FROM Customers\n  WHERE Country = ctr;\nEND //\nDELIMITER ;` },
-            { id: "sql6", title: "6. Multiple Parameters", code: `DELIMITER //\nCREATE PROCEDURE order_details (cus_id INT, max_amount INT)\nBEGIN\n  SELECT c.customer_id, c.first_name, o.amount\n  FROM Customers c JOIN Orders o ON c.customer_id = o.customer_id\n  WHERE c.customer_id = cus_id AND o.amount < max_amount;\nEND //\nDELIMITER ;` },
+            { id: "sql5", title: "5. Parameterized Procedure", code: `DELIMITER //\nCREATE PROCEDURE ctr_customers (ctr VARCHAR(50))\nBEGIN\n  SELECT customer_id, first_name\n  FROM Customers\n  WHERE Country = ctr;\nEND //\nDELIMITTER ;` },
+            { id: "sql6", title: "6. Multiple Parameters", code: `DELIMITER //\nCREATE PROCEDURE order_details (cus_id INT, max_amount INT)\nBEGIN\n  SELECT c.customer_id, c.first_name, o.amount\n  FROM Customers c JOIN Orders o ON c.customer_id = o.customer_id\n  WHERE c.customer_id = cus_id AND o.amount < max_amount;\nEND //\nDELIMITTER ;` },
             { id: "sql7", title: "7. BETWEEN Operator", code: `SELECT * \nFROM Orders\nWHERE amount BETWEEN 200 AND 600;` }
         ]
     };
 
     // --- 2. JAVASCRIPT LOGIC ---
-
-    // Function to switch tabs (Dashboard, Java, Quiz, etc.)
     function switchTab(tabName) {
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         const activeLink = document.getElementById(`nav-${tabName}`);
@@ -300,14 +290,11 @@
         const targetView = document.getElementById(`view-${tabName}`);
         if(targetView) targetView.classList.remove('hidden-force');
 
-        // --- NEW ---
-        // If we are switching to the dashboard, refresh the progress
         if (tabName === 'dashboard') {
             fetchProgress();
         }
     }
 
-    // Function to create and inject the code cards
     function loadExamples() {
         const createCard = (item) => `
             <div class="glass-panel p-6 rounded-xl">
@@ -323,11 +310,9 @@
         document.getElementById('cpp-examples').innerHTML = codeExamples.cpp.map(createCard).join('');
         document.getElementById('sql-examples').innerHTML = codeExamples.sql.map(createCard).join('');
 
-        // After creating cards, attach event listeners to the new buttons
         attachModalListeners();
     }
 
-    // Function to attach listeners to all "Explain Logic" buttons
     function attachModalListeners() {
         const modal = document.getElementById('logicModal');
         document.querySelectorAll('.logic-btn').forEach(btn => {
@@ -341,19 +326,18 @@
         document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
     }
 
-    // --- NEW ---
-    // Function to get quiz scores from the backend
     async function fetchProgress() {
+        if (!USER_TOKEN) return;
         const progressList = document.getElementById('progress-list');
         const noProgressMsg = document.getElementById('no-progress-msg');
 
         try {
             const res = await fetch(`${API_URL}/progress`, {
-                headers: { 'Authorization': `Bearer ${USER_TOKEN}` }
+                headers: { 'Authorization': USER_TOKEN }
             });
 
             if (!res.ok) {
-                if (res.status === 403) logout(); // Force logout if token is bad
+                if (res.status === 401 || res.status === 403) logout();
                 return;
             }
 
@@ -380,8 +364,6 @@
         }
     }
 
-    // --- NEW ---
-    // Function to submit the quiz
     async function submitQuiz(e) {
         e.preventDefault();
         const quizResult = document.getElementById('quizResult');
@@ -397,7 +379,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${USER_TOKEN}`
+                    'Authorization': USER_TOKEN
                 },
                 body: JSON.stringify(answers)
             });
@@ -407,8 +389,9 @@
             if (res.ok) {
                 quizResult.innerHTML = `Your Score: <span class="text-emerald-400">${data.score} / ${data.maxScore}</span>`;
                 quizResult.classList.remove('hidden-force');
+                fetchProgress();
             } else {
-                quizResult.innerHTML = `<span class="text-red-400">Error: ${data.error || "Could not submit quiz."}</span>`;
+                quizResult.innerHTML = `<span class="text-red-400">Error: ${data.message || "Could not submit quiz."}</span>`;
                 quizResult.classList.remove('hidden-force');
             }
 
@@ -421,7 +404,6 @@
         }
     }
 
-    // Function to handle logout
     function logout() {
         localStorage.clear();
         USER_TOKEN = null;
@@ -433,31 +415,27 @@
     document.addEventListener('DOMContentLoaded', () => {
         const authContainer = document.getElementById('authContainer');
         const mainApp = document.getElementById('mainAppContent');
-        USER_TOKEN = localStorage.getItem('userToken'); // Get token from storage
+        USER_TOKEN = localStorage.getItem('userToken');
 
-        // --- AUTH STATE CHECK ---
         if(USER_TOKEN) {
-            authContainer.classList.add('hidden-force'); // Hide Login
-            mainApp.classList.remove('flex-force', 'hidden-force');    // Show App
+            authContainer.classList.add('hidden-force');
+            mainApp.classList.remove('hidden-force');
             mainApp.classList.add('flex-force');
             document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail') || 'Coder';
 
-            // --- NEW ---
-            loadExamples(); // Load all code examples
-            fetchProgress(); // Load dashboard progress
+            loadExamples();
+            fetchProgress();
 
         } else {
-            authContainer.classList.remove('hidden-force'); // Show Login
-            mainApp.classList.add('hidden-force');          // Hide App
+            authContainer.classList.remove('hidden-force');
+            mainApp.classList.add('hidden-force');
         }
 
         // --- ATTACH EVENT LISTENERS ---
 
-        // Auth Listeners
         document.getElementById('showRegisterLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginPage').classList.add('hidden-force'); document.getElementById('registerPage').classList.remove('hidden-force'); });
         document.getElementById('showLoginLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerPage').classList.add('hidden-force'); document.getElementById('loginPage').classList.remove('hidden-force'); });
 
-        // Login Logic
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -466,20 +444,14 @@
             errorMsg.textContent = "Checking credentials...";
 
             try {
-                // Note: /api/login is handled by SecurityConfig, not our controller
                 const res = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, password: password })
                 });
 
-                // --- THIS IS A HACK TO GET THE TOKEN ---
-                // Spring Security doesn't return the user object on login.
-                // We will just store the email and a "basic auth" token
-
                 if(res.ok) {
-                    // SUCCESS
-                    const data = await res.json(); // Get the { message, email, isAdmin } object
+                    const data = await res.json();
 
                     // Create Basic Auth token: base64("email:password")
                     const token = btoa(`${email}:${password}`);
@@ -488,7 +460,7 @@
                     localStorage.setItem('userToken', `Basic ${token}`);
                     localStorage.setItem('userEmail', data.email);
 
-                    window.location.reload(); // Reload to switch views
+                    window.location.reload();
                 } else {
                     const data = await res.json();
                     errorMsg.textContent = data.error || "Invalid email or password.";
@@ -496,7 +468,6 @@
             } catch (err) { errorMsg.textContent = "Cannot connect to server."; }
         });
 
-        // Register Logic
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('registerEmail').value;
@@ -521,14 +492,11 @@
             } catch (err) { msg.textContent = "Server Error."; }
         });
 
-        // Logout Listeners
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('mobileLogoutBtn').addEventListener('click', logout);
 
-        // Quiz Listener
         document.getElementById('quizForm').addEventListener('submit', submitQuiz);
 
-        // Modal Close Listener (already in attachModalListeners, but good to have one here)
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('logicModal').classList.remove('open');
         });
