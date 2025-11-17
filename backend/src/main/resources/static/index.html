@@ -5,162 +5,175 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeJourney | Professional Learning Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #cbd5e1; overflow: hidden; }
         .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .sidebar-link.active { background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%); border-left: 3px solid #38bdf8; color: #38bdf8; }
-        pre { background-color: #1e293b; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; font-family: 'Courier New', monospace; border: 1px solid #334155; }
+        pre { font-family: 'Fira Code', monospace; background-color: #1e293b; border-radius: 0.5rem; padding: 1rem; overflow-x: auto; border: 1px solid #334155; }
 
-        /* Strict Visibility Toggle */
         .hidden-force { display: none !important; }
         .flex-force { display: flex !important; }
 
-        /* Background Fix */
         .bg-space {
             background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
         }
 
         .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .modal.open { opacity: 1; visibility: visible; }
         .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
         .modal.open .modal-content { transform: scale(1); }
+
+        /* Quiz Radio Button Styling */
+        .quiz-option { display: block; position: relative; padding-left: 35px; margin-bottom: 12px; cursor: pointer; font-size: 1rem; user-select: none; }
+        .quiz-option input { position: absolute; opacity: 0; cursor: pointer; }
+        .quiz-checkmark { position: absolute; top: 0; left: 0; height: 24px; width: 24px; background-color: #334155; border-radius: 50%; border: 1px solid #475569; }
+        .quiz-option:hover input ~ .quiz-checkmark { background-color: #475569; }
+        .quiz-option input:checked ~ .quiz-checkmark { background-color: #38bdf8; border: 1px solid #38bdf8;}
+        .quiz-checkmark:after { content: ""; position: absolute; display: none; }
+        .quiz-option input:checked ~ .quiz-checkmark:after { display: block; }
+        .quiz-option .quiz-checkmark:after { top: 7px; left: 7px; width: 8px; height: 8px; border-radius: 50%; background: white; }
     </style>
 </head>
 <body class="h-screen w-screen bg-slate-900 text-white">
 
+<!-- 1. AUTH CONTAINER (Login/Register) -->
 <div id="authContainer" class="fixed inset-0 z-50 flex items-center justify-center bg-space">
     <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"></div>
 
+    <!-- Login Form -->
     <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1>
-            <p class="text-slate-400 mt-2 text-sm">Master backend engineering step-by-step</p>
-        </div>
+        <div class="text-center mb-8"><h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1><p class="text-slate-400 mt-2 text-sm">Master backend engineering step-by-step</p></div>
         <form id="loginForm" class="space-y-5">
-            <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
-                <input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-                <input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="••••••••" required>
-            </div>
+            <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label><input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required></div>
+            <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label><input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="••••••••" required></div>
             <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">Sign In</button>
         </form>
         <p id="loginError" class="text-red-400 text-center mt-4 text-sm"></p>
-        <div class="mt-6 text-center text-sm text-slate-500">
-            New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a>
-        </div>
+        <div class="mt-6 text-center text-sm text-slate-500">New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a></div>
     </div>
 
+    <!-- Register Form -->
     <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 hidden-force">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold gradient-text">Join Us</h1>
-            <p class="text-slate-400 mt-2 text-sm">Start your professional journey today</p>
-        </div>
+        <div class="text-center mb-8"><h1 class="text-4xl font-bold gradient-text">Join Us</h1><p class="text-slate-400 mt-2 text-sm">Start your professional journey today</p></div>
         <form id="registerForm" class="space-y-5">
-            <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
-                <input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required>
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
-                <input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Min. 6 characters" required>
-            </div>
+            <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label><input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required></div>
+            <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label><input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Min. 6 characters" required></div>
             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">Create Account</button>
         </form>
         <p id="registerMessage" class="text-center mt-4 text-sm"></p>
-        <div class="mt-6 text-center text-sm text-slate-500">
-            Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a>
-        </div>
+        <div class="mt-6 text-center text-sm text-slate-500">Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a></div>
     </div>
 </div>
 
+<!-- 2. MAIN DASHBOARD (Hidden by default) -->
 <div id="mainAppContent" class="hidden-force h-screen w-full flex overflow-hidden bg-slate-900">
+    <!-- Sidebar -->
     <aside class="w-64 bg-slate-900 border-r border-slate-800 flex-col hidden md:flex">
-        <div class="p-6 border-b border-slate-800">
-            <span class="text-2xl font-bold gradient-text">CodeJourney</span>
-            <span class="text-xs block text-slate-500 mt-1">PRO EDITION</span>
-        </div>
+        <div class="p-6 border-b border-slate-800"><span class="text-2xl font-bold gradient-text">CodeJourney</span><span class="text-xs block text-slate-500 mt-1">PRO EDITION</span></div>
         <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-link active w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Dashboard</button>
-            <button onclick="switchTab('java')" id="nav-java" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Java Core</button>
-            <button onclick="switchTab('python')" id="nav-python" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Python Scripting</button>
-            <button onclick="switchTab('sql')" id="nav-sql" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Database (SQL)</button>
+            <button onclick="switchTab('quiz')" id="nav-quiz" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Python Quiz</button>
+            <button onclick="switchTab('java')" id="nav-java" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Java Examples</button>
+            <button onclick="switchTab('python')" id="nav-python" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">Python Examples</button>
+            <button onclick="switchTab('cpp')" id="nav-cpp" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">C++ Examples</button>
+            <button onclick="switchTab('sql')" id="nav-sql" class="sidebar-link w-full flex items-center px-4 py-3 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors text-left">SQL Examples</button>
         </nav>
-        <div class="p-4 border-t border-slate-800">
-            <button id="logoutBtn" class="w-full flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors">Logout</button>
-        </div>
+        <div class="p-4 border-t border-slate-800"><button id="logoutBtn" class="w-full flex items-center justify-center px-4 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors">Logout</button></div>
     </aside>
 
+    <!-- Content Area -->
     <main class="flex-1 flex flex-col overflow-hidden relative bg-slate-900">
-        <header class="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-20">
-            <span class="font-bold gradient-text">CodeJourney</span>
-            <button id="mobileLogoutBtn" class="text-slate-300 text-sm bg-slate-800 px-3 py-1 rounded">Logout</button>
-        </header>
+        <header class="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-20"><span class="font-bold gradient-text">CodeJourney</span><button id="mobileLogoutBtn" class="text-slate-300 text-sm bg-slate-800 px-3 py-1 rounded">Logout</button></header>
 
         <div id="contentArea" class="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
 
+            <!-- VIEW: Dashboard -->
             <div id="view-dashboard" class="view-section">
-                <div class="mb-8">
-                    <h2 class="text-3xl font-bold text-white">Welcome, <span id="userEmailDisplay" class="text-sky-400">Developer</span></h2>
-                    <p class="text-slate-400 mt-2">Your learning progress is being tracked.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="glass-panel p-6 rounded-xl"><div class="text-slate-400 text-sm mb-1">Status</div><div class="text-3xl font-bold text-emerald-400">Active</div></div>
-                    <div class="glass-panel p-6 rounded-xl"><div class="text-slate-400 text-sm mb-1">Level</div><div class="text-3xl font-bold text-white">Novice</div></div>
-                    <div class="glass-panel p-6 rounded-xl"><div class="text-slate-400 text-sm mb-1">Modules</div><div class="text-3xl font-bold text-sky-400">3 Available</div></div>
+                <div class="mb-8"><h2 class="text-3xl font-bold text-white">Welcome, <span id="userEmailDisplay" class="text-sky-400">Developer</span></h2><p class="text-slate-400 mt-2">Your learning progress is being tracked.</p></div>
+                <h3 class="text-xl font-semibold text-white mb-4">My Quiz Progress</h3>
+                <div id="progress-container" class="glass-panel p-6 rounded-xl">
+                    <p id="no-progress-msg" class="text-slate-400">You have not completed any quizzes yet. Go to the "Python Quiz" tab to start!</p>
+                    <div id="progress-list" class="space-y-4">
+                        <!-- Scores will be injected here by JavaScript -->
+                    </div>
                 </div>
             </div>
 
+            <!-- VIEW: Quiz -->
+            <div id="view-quiz" class="view-section hidden-force">
+                <h2 class="text-3xl font-bold text-white mb-6">Python Basics Quiz</h2>
+                <div class="glass-panel p-8 rounded-xl max-w-2xl">
+                    <form id="quizForm">
+                        <!-- Question 1 -->
+                        <div class="mb-6">
+                            <label class="text-lg font-semibold text-slate-200 mb-3 block">1. What is the output of `print("Hello"[::-1])`?</label>
+                            <div class="space-y-3">
+                                <label class="quiz-option text-slate-300">"olleH"
+                                    <input type="radio" name="q1" value="a" required><span class="quiz-checkmark"></span>
+                                </label>
+                                <label class="quiz-option text-slate-300">"Hello"
+                                    <input type="radio" name="q1" value="b"><span class="quiz-checkmark"></span>
+                                </label>
+                                <label class="quiz-option text-slate-300">Error
+                                    <input type="radio" name="q1" value="c"><span class="quiz-checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Question 2 -->
+                        <div class="mb-8">
+                            <label class="text-lg font-semibold text-slate-200 mb-3 block">2. What is the output of `a = {"x": 1} | {"y": 2}`?</label>
+                            <div class="space-y-3">
+                                <label class="quiz-option text-slate-300">`{"x": 1}`
+                                    <input type="radio" name="q2" value="a" required><span class="quiz-checkmark"></span>
+                                </label>
+                                <label class="quiz-option text-slate-300">`{"x": 1, "y": 2}`
+                                    <input type="radio" name="q2" value="b"><span class="quiz-checkmark"></span>
+                                </label>
+                                <label class="quiz-option text-slate-300">Error, this syntax is invalid.
+                                    <input type="radio" name="q2" value="c"><span class="quiz-checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitQuizBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">Submit Answers</button>
+                    </form>
+                    <div id="quizResult" class="mt-6 text-center text-2xl font-bold hidden-force"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: Java -->
             <div id="view-java" class="view-section hidden-force">
-                <h2 class="text-3xl font-bold text-white mb-6">Java Programming</h2>
-                <div class="grid gap-6">
-                    <div class="glass-panel p-6 rounded-xl">
-                        <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-sky-400">1. Hello World</h3><button data-logic="logic1" class="logic-btn text-xs bg-sky-600 hover:bg-sky-500 px-3 py-1 rounded text-white transition">Explain Logic</button></div>
-                        <pre><code class="language-java">public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello, CodeJourney!");
-    }
-}</code></pre>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl">
-                        <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-sky-400">2. Conditionals</h3><button data-logic="logic3" class="logic-btn text-xs bg-sky-600 hover:bg-sky-500 px-3 py-1 rounded text-white transition">Explain Logic</button></div>
-                        <pre><code class="language-java">int age = 20;
-if(age >= 18) {
-    System.out.println("Adult");
-} else {
-    System.out.println("Minor");
-}</code></pre>
-                    </div>
+                <h2 class="text-3xl font-bold text-white mb-6">Java Examples</h2>
+                <div id="java-examples" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Java examples will be injected here by JS -->
                 </div>
             </div>
 
+            <!-- VIEW: Python -->
             <div id="view-python" class="view-section hidden-force">
-                <h2 class="text-3xl font-bold text-white mb-6">Python Scripting</h2>
-                <div class="glass-panel p-6 rounded-xl">
-                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-yellow-400">Dictionaries</h3></div>
-                    <pre><code class="language-python">user = {
-    "id": 1,
-    "username": "lokesh",
-    "role": "admin"
-}
-print(user["username"])</code></pre>
+                <h2 class="text-3xl font-bold text-white mb-6">Python Examples</h2>
+                <div id="python-examples" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Python examples will be injected here by JS -->
                 </div>
             </div>
 
+            <!-- VIEW: C++ -->
+            <div id="view-cpp" class="view-section hidden-force">
+                <h2 class="text-3xl font-bold text-white mb-6">C++ Examples</h2>
+                <div id="cpp-examples" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- C++ examples will be injected here by JS -->
+                </div>
+            </div>
+
+            <!-- VIEW: SQL -->
             <div id="view-sql" class="view-section hidden-force">
-                <h2 class="text-3xl font-bold text-white mb-6">Database (SQL)</h2>
-                <div class="glass-panel p-6 rounded-xl">
-                    <div class="flex justify-between items-start mb-4"><h3 class="text-xl font-semibold text-teal-400">SELECT Query</h3></div>
-                    <pre><code class="language-sql">SELECT email, is_admin
-FROM users
-WHERE id > 5;</code></pre>
+                <h2 class="text-3xl font-bold text-white mb-6">SQL Examples</h2>
+                <div id="sql-examples" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- SQL examples will be injected here by JS -->
                 </div>
             </div>
 
@@ -168,6 +181,7 @@ WHERE id > 5;</code></pre>
     </main>
 </div>
 
+<!-- Logic Modal -->
 <div id="logicModal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
     <div class="modal-content bg-slate-800 border border-sky-500/30 w-full max-w-2xl rounded-2xl p-8 shadow-2xl relative">
         <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
@@ -178,51 +192,270 @@ WHERE id > 5;</code></pre>
 
 <script>
     const API_URL = "/api";
+    let USER_TOKEN = null; // Store the token on login
+
+    // --- 1. DATA STORE (LOGIC & EXAMPLES) ---
+
+    // Simple explanations for all code snippets
     const logicData = {
-        logic1: "This is the entry point. The `main` method is executed first. `System.out.println` sends text to the console output.",
-        logic3: "The `if` statement checks a condition. If true, the first block runs. If false, the `else` block runs."
+        // Python
+        "py1": "This is string slicing. `[::-1]` means 'start at the end, go to the beginning, and move 1 step back'. It's a fast way to reverse any string.",
+        "py2": "This is an 'inplace swap'. Python evaluates the right side (`b, a + 2`) first. So `b` (5) and `a + 2` (12) are calculated, and *then* assigned to `a` and `b` at the same time.",
+        "py3": "The `|` (pipe) operator is a new, clean way to merge two dictionaries (available in Python 3.9+).",
+        "py4": "`.setdefault(key, 0)` is a safe way to access a dictionary. It means: 'Try to get the key. If it doesn't exist, create it with a value of 0, and then return it.' This avoids a `KeyError`.",
+        "py5": "Regex (Regular Expressions) are for finding patterns. `\\d{10}` means 'find exactly 10 digits'. `(0)?` and `(\\+44)?` mean the "0" or "+44" prefix is optional.",
+        "py6": "The `|` (pipe) in regex means 'OR'. This pattern looks for the word 'Super' followed by *either* 'man', 'woman', or 'human'.",
+        "py7": "`set(list)` converts a list into a 'set', which is an unordered collection of *unique* items. You can use math operations on sets, like subtraction (`-`) or symmetric difference (`^`) to find differences.",
+        "py8": "A palindrome reads the same forwards and backwards. `.casefold()` removes all capitalization. `reversed(str)` creates a reverse version. We compare the `list()` of both to see if they match.",
+        "py9": "A 'hash' is a unique digital fingerprint for a file. This code reads a file in 'chunks' (1024 bytes at a time) and updates the hash object. This is memory-efficient for very large files.",
+        "py10": "This is a 'list comprehension' nested inside another. It means: 'For each `sublist` in `my_list`, loop `num` in that `sublist`, and add `num` to the new `flat_list`.'",
+
+        // C++
+        "cpp1": "`cout` (Console Out) is used to print to the screen. `cin` (Console In) is used to read a user's keyboard input and store it in the `number` variable.",
+        "cpp2": "In C++, the `/` operator (when used with integers) performs 'integer division', which gives the quotient (how many times it fits). The `%` (modulo) operator gives the remainder.",
+        "cpp3": "This uses boolean logic. `isLowercaseVowel` becomes `true` (1) if `c` matches any of the lowercase vowels. `!isalpha(c)` checks if the character is *not* in the alphabet.",
+        "cpp4": "This solves a quadratic equation. The `discriminant` determines the type of roots. If it's positive, there are two real roots. If zero, one real root. If negative, the roots are complex (imaginary).",
+        "cpp5": "A `for` loop is used to repeat an action. It initializes `i = 1`, runs the loop as long as `i <= 10`, and increments `i` after each run.",
+        "cpp6": "This converts octal (base-8) to decimal (base-10). It loops through each octal digit (`rem`), multiplies it by `8` to the power of its position (`pow(8, i)`), and adds it to the total.",
+        "cpp7": "A `struct` is a way to group different data types (like `name`, `roll`, `marks`) into one custom variable. `s[10]` creates an array to hold 10 of these 'student' structs.",
+        "cpp8": "This code loops through every character (`line[i]`) of the input string. It checks if the character is in the alphabet (a-z or A-Z). If it is, it's added to a new `temp` string, effectively filtering out all other characters.",
+        "cpp9": "This loops through a string and checks every character. If the character (`str[i]`) matches the `checkCharacter` ('a'), it increases the `count` by one.",
+        "cpp10": "A prime number is only divisible by 1 and itself. The `isPrime` function checks this by trying to divide `n` by every number from 2 up to `n/2`. If it finds *any* divisor, it returns `false`.",
+
+        // SQL
+        "sql1": "`SELECT` is used to fetch data. `amount + 100` doesn't change the database; it just creates a new temporary column in the output. `AS total_amount` renames that new column.",
+        "sql2": "This subtracts 20 from the `amount` for each row, just for the output. The `AS` keyword renames the column.",
+        "sql3": "This multiplies the `amount` by 4 for each row in the output. The `AS` keyword renames the column.",
+        "sql4": "This divides the `amount` by 2 for each row in the output. The `AS` keyword renames the column.",
+        "sql5": "A 'Stored Procedure' is a pre-compiled set of SQL commands saved in the database. This creates a procedure named `ctr_customers` that takes one input (`ctr`) and finds all customers from that country.",
+        "sql6": "This procedure takes two inputs, `cus_id` (customer ID) and `max_amount`. It uses a `JOIN` to combine `Customers` and `Orders` tables and then filters the results.",
+        "sql7": "The `BETWEEN` operator is a shortcut for filtering a range. It's the same as `WHERE amount >= 200 AND amount <= 600`.",
+
+        // Java
+        "java1": "This is the Java version of the C++ quadratic equation solver. It uses `Math.sqrt()` to find the square root and `discriminant` to check for real or complex roots.",
+        "java2": "A `for` loop is set up to run 10 times. `printf` is used for 'formatted printing', where `%d` is a placeholder for an integer. It replaces `num`, `i`, and `num * i` in order.",
+        "java3": "A `switch` statement is a clean alternative to many `if-else` statements. It checks the `operator` variable and jumps to the matching `case` (e.g., `case '+':`). `break;` stops it from falling through to the next case.",
+        "java4": "A 'recursive' function is one that calls itself. `addNumbers(num)` calls `addNumbers(num - 1)`. This repeats until `num` is 0 (the 'base case'), at which point it stops and the chain of additions resolves.",
+        "java5": "This recursive function reverses a string. It works by taking the first character (`sentence.charAt(0)`) and moving it to the end, then calling itself on the *rest* of the string (`sentence.substring(1)`).",
+        "java6": "An array (`double[]`) stores a list of numbers. This 'for-each' loop (`for (double num: numArray)`) is a simple way to loop through every item in the array and add it to the `sum`.",
+        "java7": "A 2D array (`int[][]`) is an array of arrays, perfect for representing a grid or matrix. This code loops through each row (`i`) and each column (`j`) to add the elements from the two matrices."
     };
 
+    // All the new code examples
+    const codeExamples = {
+        java: [
+            { id: "java1", title: "1. Quadratic Equation", code: `public class Main {\n  public static void main(String[] args) {\n    double a = 2.3, b = 4, c = 5.6;\n    double root1, root2;\n    double discriminant = b * b - 4 * a * c;\n    if (discriminant > 0) {\n      root1 = (-b + Math.sqrt(discriminant)) / (2 * a);\n      root2 = (-b - Math.sqrt(discriminant)) / (2 * a);\n      System.out.format("root1 = %.2f and root2 = %.2f", root1, root2);\n    }\n    else if (discriminant == 0) {\n      root1 = root2 = -b / (2 * a);\n      System.out.format("root1 = root2 = %.2f;", root1);\n    }\n    else {\n      double real = -b / (2 * a);\n      double imaginary = Math.sqrt(-discriminant) / (2 * a);\n      System.out.format("root1 = %.2f+%.2fi", real, imaginary);\n      System.out.format("\\nroot2 = %.2f-%.2fi", real, imaginary);\n    }\n  }\n}` },
+            { id: "java2", title: "2. Multiplication Table", code: `public class MultiplicationTable {\n    public static void main(String[] args) {\n        int num = 5;\n        for(int i = 1; i <= 10; ++i)\n        {\n            System.out.printf("%d * %d = %d \\n", num, i, num * i);\n        }\n    }\n}` },
+            { id: "java3", title: "3. Simple Calculator", code: `import java.util.Scanner;\nclass Main {\n  public static void main(String[] args) {\n    char operator;\n    Double number1, number2, result;\n    Scanner input = new Scanner(System.in);\n    System.out.println("Choose an operator: +, -, *, or /");\n    operator = input.next().charAt(0);\n    System.out.println("Enter first number");\n    number1 = input.nextDouble();\n    System.out.println("Enter second number");\n    number2 = input.nextDouble();\n    switch (operator) {\n      case '+':\n        result = number1 + number2;\n        System.out.println(number1 + " + " + number2 + " = " + result);\n        break;\n      case '-':\n        result = number1 - number2;\n        System.out.println(number1 + " - " + number2 + " = " + result);\n        break;\n      case '*':\n        result = number1 * number2;\n        System.out.println(number1 + " * " + number2 + " = " + result);\n        break;\n      case '/':\n        result = number1 / number2;\n        System.out.println(number1 + " / " + number2 + " = " + result);\n        break;\n      default:\n        System.out.println("Invalid operator!");\n        break;\n    }\n    input.close();\n  }\n}` },
+            { id: "java4", title: "4. Sum with Recursion", code: `public class AddNumbers {\n    public static void main(String[] args) {\n        int number = 20;\n        int sum = addNumbers(number);\n        System.out.println("Sum = " + sum);\n    }\n\n    public static int addNumbers(int num) {\n        if (num != 0)\n            return num + addNumbers(num - 1);\n        else\n            return num;\n    }\n}` },
+            { id: "java5", title: "5. Reverse Sentence (Recursion)", code: `public class Reverse {\n  public static void main(String[] args) {\n    String sentence = "Go work";\n    String reversed = reverse(sentence);\n    System.out.println("The reversed sentence is: " + reversed);\n  }\n\n  public static String reverse(String sentence) {\n    if (sentence.isEmpty())\n      return sentence;\n\n    return reverse(sentence.substring(1)) + sentence.charAt(0);\n  }\n}` },
+            { id: "java6", title: "6. Calculate Average (Array)", code: `public class Average {\n    public static void main(String[] args) {\n        double[] numArray = { 45.3, 67.5, -45.6, 20.34, 33.0, 45.6 };\n        double sum = 0.0;\n\n        for (double num: numArray) {\n           sum += num;\n        }\n\n        double average = sum / numArray.length;\n        System.out.format("The average is: %.2f", average);\n    }\n}` },
+            { id: "java7", title: "7. Add Two Matrices", code: `public class AddMatrices {\n    public static void main(String[] args) {\n        int rows = 2, columns = 3;\n        int[][] firstMatrix = { {2, 3, 4}, {5, 2, 3} };\n        int[][] secondMatrix = { {-4, 5, 3}, {5, 6, 3} };\n\n        int[][] sum = new int[rows][columns];\n        for(int i = 0; i < rows; i++) {\n            for (int j = 0; j < columns; j++) {\n                sum[i][j] = firstMatrix[i][j] + secondMatrix[i][j];\n            }\n        }\n\n        System.out.println("Sum of two matrices is: ");\n        for(int[] row : sum) {\n            for (int column : row) {\n                System.out.print(column + "    ");\n            }\n            System.out.println();\n        }\n    }\n}` }
+        ],
+        python: [
+            { id: "py1", title: "1. String Slicing (Reverse)", code: `a = "Hello World!"\nprint(a[::-1])\n\n# Output: !dlroW olleH` },
+            { id: "py2", title: "2. Inplace Swap", code: `a = 10\nb = 5\na, b = b, a + 2\nprint(f"Second: {a, b}")\n\n# Output: Second: (5, 12)` },
+            { id: "py3", title: "3. Merging Dictionaries", code: `a = {"a": 1, "b": 2}\nb = {"c": 3, "d": 4}\na_and_b = a | b\nprint(a_and_b)\n\n# Output: {'a': 1, 'b': 2, 'c': 3, 'd': 4}` },
+            { id: "py4", title: "4. 'setdefault' Method", code: `text = "It's a wonderful day"\ncounts = {}\nfor word in text.split():\n    counts.setdefault(word, 0)\n    counts[word] += 1\nprint(counts)\n\n# Output: {"It's": 1, 'a': 1, ...}` },
+            { id: "py5", title: "5. Matching Regex", code: `import re\nnumber = re.compile(r"(0)?(\\+44)?\\d{10}")\nnum_1 = number.search("My number is +447999999999")\nprint(num_1.group())\n\n# Output: +447999999999` },
+            { id: "py6", title: "6. Regex Pipe (OR)", code: `import re\nheros = re.compile(r"Super(man|woman|human)")\nh1 = heros.search("This will find Superman")\nprint(h1.group())\n\n# Output: Superman` },
+            { id: "py7", title: "7. List Differences (Set)", code: `list_1 = [1, 3, 5]\nlist_2 = [1, 2, 3, 4, 5]\nsolution = list(set(list_2) - set(list_1))\nprint(solution)\n\n# Output: [2, 4]` },
+            { id: "py8", title: "8. Palindrome Check", code: `my_str = 'aIbohPhoBiA'\nmy_str = my_str.casefold()\nrev_str = reversed(my_str)\nif list(my_str) == list(rev_str):\n   print("The string is a palindrome.")\nelse:\n   print("The string is not a palindrome.")` },
+            { id: "py9", title: "9. Hash a File", code: `import hashlib\ndef hash_file(filepath):\n   h = hashlib.sha1()\n   with open(filepath,'rb') as file:\n       chunk = 0\n       while chunk != b'':\n           chunk = file.read(1024)\n           h.update(chunk)\n   return h.hexdigest()` },
+            { id: "py10", title: "10. Flatten a Nested List", code: `my_list = [[1], [2, 3], [4, 5]]\nflat_list = [num for sublist in my_list for num in sublist]\nprint(flat_list)\n\n# Output: [1, 2, 3, 4, 5]` }
+        ],
+        cpp: [
+            { id: "cpp1", title: "1. Print User Input", code: `#include <iostream>\nusing namespace std;\n\nint main() {    \n    int number;\n    cout << "Enter an integer: ";\n    cin >> number;\n    cout << "You entered " << number;\n    return 0;\n}` },
+            { id: "cpp2", title: "2. Find Quotient & Remainder", code: `#include <iostream>\nusing namespace std;\n\nint main()\n{    \n    int divisor, dividend, quotient, remainder;\n    cout << "Enter dividend: ";\n    cin >> dividend;\n    cout << "Enter divisor: ";\n    cin >> divisor;\n    quotient = dividend / divisor;\n    remainder = dividend % divisor;\n    cout << "Quotient = " << quotient << endl;\n    cout << "Remainder = " << remainder;\n    return 0;\n}` },
+            { id: "cpp3", title: "3. Check Vowel or Consonant", code: `#include <iostream>\nusing namespace std;\n\nint main() {\n    char c;\n    cout << "Enter an alphabet: ";\n    cin >> c;\n    if (!isalpha(c))\n      printf("Error!");\n    else if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U')\n        cout << c << " is a vowel.";\n    else\n        cout << c << " is a consonant.";\n    return 0;\n}` },
+            { id: "cpp4", title: "4. Quadratic Equation", code: `#include <iostream>\n#include <cmath>\nusing namespace std;\n\nint main() {\n    float a, b, c, x1, x2, discriminant;\n    cout << "Enter coefficients a, b and c: ";\n    cin >> a >> b >> c;\n    discriminant = b*b - 4*a*c;\n    \n    if (discriminant > 0) {\n        x1 = (-b + sqrt(discriminant)) / (2*a);\n        x2 = (-b - sqrt(discriminant)) / (2*a);\n        cout << "Roots are real and different." << endl;\n    }\n    else if (discriminant == 0) {\n        cout << "Roots are real and same." << endl;\n        x1 = -b/(2*a);\n        cout << "x1 = x2 =" << x1 << endl;\n    }\n    else {\n        cout << "Roots are complex" << endl;\n    }\n    return 0;\n}` },
+            { id: "cpp5", title: "5. Multiplication Table", code: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cout << "Enter a positive integer: ";\n    cin >> n;\n    for (int i = 1; i <= 10; ++i) {\n        cout << n << " * " << i << " = " << n * i << endl;\n    }\n    return 0;\n}` },
+            { id: "cpp6", title: "6. Octal to Decimal", code: `#include <iostream>\n#include <cmath>\nusing namespace std;\n\nint octalToDecimal(int octalNumber);\n\nint main()\n{\n   int octalNumber;\n   cout << "Enter an octal number: ";\n   cin >> octalNumber;\n   cout << octalNumber << " octal = " << octalToDecimal(octalNumber) << " decimal";\n   return 0;\n}\n\nint octalToDecimal(int octalNumber)\n{\n    int decimalNumber = 0, i = 0, rem;\n    while (octalNumber != 0)\n    {\n        rem = octalNumber % 10;\n        octalNumber /= 10;\n        decimalNumber += rem * pow(8, i);\n        ++i;\n    }\n    return decimalNumber;\n}` },
+            { id: "cpp7", title: "7. Store Info (Structure)", code: `#include <iostream>\nusing namespace std;\n\nstruct student {\n    char name[50];\n    int roll;\n    float marks;\n} s[2]; // Shortened to 2 for demo\n\nint main()\n{\n    for(int i = 0; i < 2; ++i)\n    {\n        cout << "Enter name: ";\n        cin >> s[i].name;\n        cout << "Enter marks: ";\n        cin >> s[i].marks;\n    }\n    for(int i = 0; i < 2; ++i)\n    {\n        cout << "\\nName: " << s[i].name << endl;\n        cout << "Marks: " << s[i].marks << endl;\n    }\n    return 0;\n}` },
+            { id: "cpp8", title: "8. Remove Non-Alphabets", code: `#include <iostream>\nusing namespace std;\n\nint main() {\n    string line;\n    string temp = "";\n    cout << "Enter a string: ";\n    getline(cin, line);\n\n    for (int i = 0; i < line.size(); ++i) {\n        if ((line[i] >= 'a' && line[i] <= 'z') || (line[i] >= 'A' && line[i] <= 'Z')) {\n            temp = temp + line[i];\n        }\n    }\n    line = temp;\n    cout << "Output String: " << line;\n    return 0;\n}` },
+            { id: "cpp9", title: "9. Find Frequency of Char", code: `#include <iostream>\nusing namespace std;\n\nint main()\n{\n    string str = "C++ Programming is awesome";\n    char checkCharacter = 'a';\n    int count = 0;\n\n    for (int i = 0; i < str.size(); i++)\n    {\n        if (str[i] ==  checkCharacter)\n        {\n            ++ count;\n        }\n    }\n    cout << "Number of " << checkCharacter << " = " << count;\n    return 0;\n}` },
+            { id: "cpp10", title: "10. Prime Numbers (Function)", code: `#include <iostream>\n\nbool isPrime(int n){\n    if (n == 0 || n == 1) return false;\n    for(int i = 2; i <= n/2; ++i) {\n      if (n % i == 0) return false;\n    }\n  return true;\n}\n\nint main(){\n    int n1 = 1, n2 = 20;\n    for(int i = n1 + 1 ; i < n2 ; ++i){\n        if (isPrime(i)) {\n            std::cout << i << " ";\n        }\n    }\n}` }
+        ],
+        sql: [
+            { id: "sql1", title: "1. Addition Operator", code: `SELECT item, amount, amount + 100 AS total_amount\nFROM Orders;` },
+            { id: "sql2", title: "2. Subtraction Operator", code: `SELECT item, amount, amount - 20 AS offer_price\nFROM Orders;` },
+            { id: "sql3", title: "3. Multiplication Operator", code: `SELECT item, amount, amount * 4 AS total_amount\nFROM Orders;` },
+            { id: "sql4", title: "4. Division Operator", code: `SELECT item, amount, amount / 2 AS half_amount\nFROM Orders;` },
+            { id: "sql5", title: "5. Parameterized Procedure", code: `DELIMITER //\nCREATE PROCEDURE ctr_customers (ctr VARCHAR(50))\nBEGIN\n  SELECT customer_id, first_name\n  FROM Customers\n  WHERE Country = ctr;\nEND //\nDELIMITER ;` },
+            { id: "sql6", title: "6. Multiple Parameters", code: `DELIMITER //\nCREATE PROCEDURE order_details (cus_id INT, max_amount INT)\nBEGIN\n  SELECT c.customer_id, c.first_name, o.amount\n  FROM Customers c JOIN Orders o ON c.customer_id = o.customer_id\n  WHERE c.customer_id = cus_id AND o.amount < max_amount;\nEND //\nDELIMITER ;` },
+            { id: "sql7", title: "7. BETWEEN Operator", code: `SELECT * \nFROM Orders\nWHERE amount BETWEEN 200 AND 600;` }
+        ]
+    };
+
+    // --- 2. JAVASCRIPT LOGIC ---
+
+    // Function to switch tabs (Dashboard, Java, Quiz, etc.)
     function switchTab(tabName) {
-        // Reset Sidebar
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         const activeLink = document.getElementById(`nav-${tabName}`);
         if(activeLink) activeLink.classList.add('active');
 
-        // Hide all views
         document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden-force'));
 
-        // Show target view
         const targetView = document.getElementById(`view-${tabName}`);
         if(targetView) targetView.classList.remove('hidden-force');
+
+        // --- NEW ---
+        // If we are switching to the dashboard, refresh the progress
+        if (tabName === 'dashboard') {
+            fetchProgress();
+        }
     }
+
+    // Function to create and inject the code cards
+    function loadExamples() {
+        const createCard = (item) => `
+            <div class="glass-panel p-6 rounded-xl">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-semibold text-sky-400">${item.title}</h3>
+                    <button data-logic="${item.id}" class="logic-btn text-xs bg-sky-600 hover:bg-sky-500 px-3 py-1 rounded text-white transition">Explain Logic</button>
+                </div>
+                <pre><code class="language-java">${item.code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+            </div>`;
+
+        document.getElementById('java-examples').innerHTML = codeExamples.java.map(createCard).join('');
+        document.getElementById('python-examples').innerHTML = codeExamples.python.map(createCard).join('');
+        document.getElementById('cpp-examples').innerHTML = codeExamples.cpp.map(createCard).join('');
+        document.getElementById('sql-examples').innerHTML = codeExamples.sql.map(createCard).join('');
+
+        // After creating cards, attach event listeners to the new buttons
+        attachModalListeners();
+    }
+
+    // Function to attach listeners to all "Explain Logic" buttons
+    function attachModalListeners() {
+        const modal = document.getElementById('logicModal');
+        document.querySelectorAll('.logic-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.target.dataset.logic;
+                document.getElementById('logicBody').innerHTML = logicData[key] || "Explanation coming soon.";
+                document.getElementById('logicTitle').innerHTML = e.target.previousElementSibling.innerHTML;
+                modal.classList.add('open');
+            });
+        });
+        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+    }
+
+    // --- NEW ---
+    // Function to get quiz scores from the backend
+    async function fetchProgress() {
+        const progressList = document.getElementById('progress-list');
+        const noProgressMsg = document.getElementById('no-progress-msg');
+
+        try {
+            const res = await fetch(`${API_URL}/progress`, {
+                headers: { 'Authorization': `Bearer ${USER_TOKEN}` }
+            });
+
+            if (!res.ok) {
+                if (res.status === 403) logout(); // Force logout if token is bad
+                return;
+            }
+
+            const scores = await res.json();
+
+            if (scores.length === 0) {
+                progressList.innerHTML = '';
+                noProgressMsg.classList.remove('hidden-force');
+            } else {
+                noProgressMsg.classList.add('hidden-force');
+                progressList.innerHTML = scores.map(s => `
+                    <div class="flex justify-between items-center bg-slate-800 p-4 rounded-lg">
+                        <div>
+                            <span class="font-semibold text-white">${s.quizName}</span>
+                            <span class="block text-sm text-slate-400">Completed: ${new Date(s.completedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="text-2xl font-bold text-sky-400">${s.score} / ${s.maxScore}</div>
+                    </div>
+                `).join('');
+            }
+        } catch (err) {
+            console.error("Failed to fetch progress", err);
+            progressList.innerHTML = '<p class="text-red-400">Could not load progress.</p>';
+        }
+    }
+
+    // --- NEW ---
+    // Function to submit the quiz
+    async function submitQuiz(e) {
+        e.preventDefault();
+        const quizResult = document.getElementById('quizResult');
+        const submitBtn = document.getElementById('submitQuizBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Grading...";
+
+        const formData = new FormData(e.target);
+        const answers = Object.fromEntries(formData.entries());
+
+        try {
+            const res = await fetch(`${API_URL}/quiz/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${USER_TOKEN}`
+                },
+                body: JSON.stringify(answers)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                quizResult.innerHTML = `Your Score: <span class="text-emerald-400">${data.score} / ${data.maxScore}</span>`;
+                quizResult.classList.remove('hidden-force');
+            } else {
+                quizResult.innerHTML = `<span class="text-red-400">Error: ${data.error || "Could not submit quiz."}</span>`;
+                quizResult.classList.remove('hidden-force');
+            }
+
+        } catch(err) {
+            quizResult.innerHTML = `<span class="text-red-400">Server connection error.</span>`;
+            quizResult.classList.remove('hidden-force');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Answers";
+        }
+    }
+
+    // Function to handle logout
+    function logout() {
+        localStorage.clear();
+        USER_TOKEN = null;
+        window.location.reload();
+    }
+
+    // --- 3. MAIN SCRIPT EXECUTION ---
 
     document.addEventListener('DOMContentLoaded', () => {
         const authContainer = document.getElementById('authContainer');
         const mainApp = document.getElementById('mainAppContent');
+        USER_TOKEN = localStorage.getItem('userToken'); // Get token from storage
 
         // --- AUTH STATE CHECK ---
-        if(localStorage.getItem('isLoggedIn') === 'true') {
+        if(USER_TOKEN) {
             authContainer.classList.add('hidden-force'); // Hide Login
-            mainApp.classList.remove('hidden-force');    // Show App
+            mainApp.classList.remove('flex-force', 'hidden-force');    // Show App
+            mainApp.classList.add('flex-force');
             document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail') || 'Coder';
+
+            // --- NEW ---
+            loadExamples(); // Load all code examples
+            fetchProgress(); // Load dashboard progress
+
         } else {
             authContainer.classList.remove('hidden-force'); // Show Login
             mainApp.classList.add('hidden-force');          // Hide App
         }
 
-        // Navigation Handlers
-        document.getElementById('showRegisterLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('loginPage').classList.add('hidden-force');
-            document.getElementById('registerPage').classList.remove('hidden-force');
-        });
+        // --- ATTACH EVENT LISTENERS ---
 
-        document.getElementById('showLoginLink').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('registerPage').classList.add('hidden-force');
-            document.getElementById('loginPage').classList.remove('hidden-force');
-        });
+        // Auth Listeners
+        document.getElementById('showRegisterLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginPage').classList.add('hidden-force'); document.getElementById('registerPage').classList.remove('hidden-force'); });
+        document.getElementById('showLoginLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerPage').classList.add('hidden-force'); document.getElementById('loginPage').classList.remove('hidden-force'); });
 
         // Login Logic
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -230,29 +463,37 @@ WHERE id > 5;</code></pre>
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorMsg = document.getElementById('loginError');
-
             errorMsg.textContent = "Checking credentials...";
 
             try {
+                // Note: /api/login is handled by SecurityConfig, not our controller
                 const res = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
-                const data = await res.json();
+                // --- THIS IS A HACK TO GET THE TOKEN ---
+                // Spring Security doesn't return the user object on login.
+                // We will just store the email and a "basic auth" token
 
                 if(res.ok) {
                     // SUCCESS
+                    const data = await res.json(); // Get the { message, email, isAdmin } object
+
+                    // Create Basic Auth token: base64("email:password")
+                    const token = btoa(`${email}:${password}`);
+
                     localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userToken', `Basic ${token}`);
                     localStorage.setItem('userEmail', data.email);
+
                     window.location.reload(); // Reload to switch views
                 } else {
+                    const data = await res.json();
                     errorMsg.textContent = data.error || "Invalid email or password.";
                 }
-            } catch (err) {
-                errorMsg.textContent = "Cannot connect to server.";
-            }
+            } catch (err) { errorMsg.textContent = "Cannot connect to server."; }
         });
 
         // Register Logic
@@ -261,7 +502,6 @@ WHERE id > 5;</code></pre>
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const msg = document.getElementById('registerMessage');
-
             msg.textContent = "Creating account...";
 
             try {
@@ -278,29 +518,20 @@ WHERE id > 5;</code></pre>
                     msg.textContent = data.error || "Registration failed.";
                     msg.style.color = "#f87171";
                 }
-            } catch (err) {
-                msg.textContent = "Server Error.";
-            }
+            } catch (err) { msg.textContent = "Server Error."; }
         });
 
-        // Logout Logic
-        function logout() {
-            localStorage.clear();
-            window.location.reload();
-        }
+        // Logout Listeners
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('mobileLogoutBtn').addEventListener('click', logout);
 
-        // Modal Logic
-        const modal = document.getElementById('logicModal');
-        document.querySelectorAll('.logic-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const key = e.target.dataset.logic;
-                document.getElementById('logicBody').innerHTML = logicData[key];
-                modal.classList.add('open');
-            });
+        // Quiz Listener
+        document.getElementById('quizForm').addEventListener('submit', submitQuiz);
+
+        // Modal Close Listener (already in attachModalListeners, but good to have one here)
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('logicModal').classList.remove('open');
         });
-        document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
     });
 </script>
 </body>

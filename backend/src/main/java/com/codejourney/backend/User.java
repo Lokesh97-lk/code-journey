@@ -2,6 +2,8 @@ package com.codejourney.backend;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.Set; // Import Set
+import java.util.HashSet; // Import HashSet
 
 @Entity
 @Table(name = "users")
@@ -22,7 +24,14 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private Instant createdAt = Instant.now();
 
-    // Constructors
+    // --- NEW CODE ---
+    // This links the User to their scores.
+    // One user can have many scores.
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserScore> scores = new HashSet<>();
+    // --- END NEW CODE ---
+
+
     public User() {}
 
     // Getters and Setters
@@ -40,4 +49,9 @@ public class User {
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    // --- NEW GETTER/SETTER ---
+    public Set<UserScore> getScores() { return scores; }
+    public void setScores(Set<UserScore> scores) { this.scores = scores; }
+    // --- END NEW GETTER/SETTER ---
 }
