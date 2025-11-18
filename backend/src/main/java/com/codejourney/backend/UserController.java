@@ -39,7 +39,7 @@ public class UserController {
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(password));
 
-        // Auto-admin Logic
+        // Auto-admin for your specific email
         if ("lokesh972007@gmail.com".equalsIgnoreCase(email)) {
             newUser.setAdmin(true);
         }

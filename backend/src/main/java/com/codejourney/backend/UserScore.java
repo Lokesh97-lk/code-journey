@@ -16,7 +16,7 @@ public class UserScore {
     private User user;
 
     @Column(name = "quiz_name", nullable = false)
-    private String quizName;
+    private String quizName; // Stores the Concept Name (e.g., "Java Recursion")
 
     @Column(nullable = false)
     private int score;
@@ -27,10 +27,8 @@ public class UserScore {
     @Column(name = "completed_at")
     private Instant completedAt = Instant.now();
 
-    // Constructors
     public UserScore() {}
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

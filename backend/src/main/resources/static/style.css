@@ -1,0 +1,128 @@
+/* Base Settings */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0f172a;
+    color: #cbd5e1;
+    overflow: hidden; /* Keeps the main scrollbar hidden */
+}
+
+/* Typography & Gradients */
+.gradient-text {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism UI */
+.glass-panel {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar Links */
+.sidebar-link.active {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%);
+    border-left: 3px solid #38bdf8;
+    color: #38bdf8;
+}
+
+/* Code Blocks */
+pre {
+    font-family: 'Fira Code', monospace;
+    background-color: #1e293b;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    border: 1px solid #334155;
+    font-size: 0.9rem;
+}
+
+/* Utility Classes */
+.hidden-force { display: none !important; }
+.flex-force { display: flex !important; }
+
+/* Background Image */
+.bg-space {
+    background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Mobile Sidebar Transitions */
+#sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+.sidebar-closed { transform: translateX(-100%); }
+.sidebar-open { transform: translateX(0); }
+
+/* Zen Mode Logic */
+body.zen-mode #sidebar,
+body.zen-mode header {
+    display: none !important;
+}
+body.zen-mode #contentArea {
+    padding: 4rem;
+}
+
+/* Modal Animations */
+.modal {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.modal.open {
+    opacity: 1;
+    visibility: visible;
+}
+.modal-content {
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+.modal.open .modal-content {
+    transform: scale(1);
+}
+
+/* --- NEW ANIMATIONS --- */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Slide In from Right (for Sidebar items) */
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar-link {
+    animation: slideInRight 0.4s ease-out forwards;
+    opacity: 0; /* Start hidden before animation */
+}
+
+/* Stagger animations for sidebar items */
+.sidebar-link:nth-child(1) { animation-delay: 0.1s; }
+.sidebar-link:nth-child(2) { animation-delay: 0.15s; }
+.sidebar-link:nth-child(3) { animation-delay: 0.2s; }
+.sidebar-link:nth-child(4) { animation-delay: 0.25s; }
+.sidebar-link:nth-child(5) { animation-delay: 0.3s; }
+.sidebar-link:nth-child(6) { animation-delay: 0.35s; }
+.sidebar-link:nth-child(7) { animation-delay: 0.4s; }
+
+/* Pulse effect for the 'Submit' button */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+#submitPracticeBtn:hover {
+    animation: pulse-glow 1.5s infinite;
+}
