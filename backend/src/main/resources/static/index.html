@@ -3,45 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeJourney | World of Code</title>
+    <title>Dashboard | CodeJourney</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS File Link -->
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // SECURITY CHECK: Redirect if not logged in
+        if (!localStorage.getItem('userToken')) {
+            // Fix for Invalid URL error: Use origin directly
+            window.location.href = window.location.origin + '/login.html';
+        }
+    </script>
 </head>
 <body class="h-screen w-screen bg-slate-900 text-white flex flex-col md:flex-row overflow-hidden">
-
-    <!-- 1. AUTH CONTAINER (Login/Register) -->
-    <div id="authContainer" class="fixed inset-0 z-[60] flex items-center justify-center bg-space animate-fade-in">
-        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm"></div>
-        
-        <!-- Login Form -->
-        <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 mx-4 animate-fade-in">
-            <div class="text-center mb-8"><h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1><p class="text-slate-400 mt-2 text-sm">Your daily path to mastery</p></div>
-            <form id="loginForm" class="space-y-5">
-                <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label><input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required></div>
-                <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label><input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="••••••••" required></div>
-                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">Enter World</button>
-            </form>
-            <p id="loginError" class="text-red-400 text-center mt-4 text-sm"></p>
-            <div class="mt-6 text-center text-sm text-slate-500">New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a></div>
-        </div>
-
-        <!-- Register Form -->
-        <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 hidden-force mx-4 animate-fade-in">
-            <div class="text-center mb-8"><h1 class="text-4xl font-bold gradient-text">Join Us</h1><p class="text-slate-400 mt-2 text-sm">Begin your legacy</p></div>
-            <form id="registerForm" class="space-y-5">
-                <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label><input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="name@example.com" required></div>
-                <div><label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label><input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none" placeholder="Min. 6 characters" required></div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">Create Account</button>
-            </form>
-            <p id="registerMessage" class="text-center mt-4 text-sm"></p>
-            <div class="mt-6 text-center text-sm text-slate-500">Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a></div>
-        </div>
-    </div>
 
     <!-- MOBILE HEADER -->
     <header class="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-50 fixed top-0 w-full">
@@ -51,11 +26,11 @@
         </button>
     </header>
 
-    <!-- 2. MAIN APP CONTENT -->
-    <div id="mainAppContent" class="hidden-force h-full w-full flex overflow-hidden bg-slate-900 pt-16 md:pt-0 relative">
+    <!-- MAIN APP CONTENT WRAPPER -->
+    <div id="mainAppContent" class="h-full w-full flex overflow-hidden bg-slate-900 pt-16 md:pt-0 relative">
         
-        <!-- SIDEBAR (Responsive) -->
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-900 border-r border-slate-800 flex flex-col sidebar-closed md:sidebar-open md:relative md:transform-none shadow-2xl md:shadow-none">
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-900 border-r border-slate-800 flex flex-col sidebar-closed md:sidebar-open md:relative md:transform-none shadow-2xl md:shadow-none transition-transform duration-300">
             <div class="p-6 border-b border-slate-800 hidden md:block">
                 <span class="text-2xl font-bold gradient-text">CodeJourney</span>
                 <span class="text-xs block text-slate-500 mt-1">World of Code</span>
@@ -97,12 +72,12 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
+        <!-- CONTENT AREA -->
         <main id="contentArea" class="flex-1 h-full flex flex-col overflow-y-auto p-4 md:p-10 scroll-smooth relative w-full">
             
-            <!-- Unique Feature: Zen Mode Toggle -->
-            <div class="absolute top-4 right-4 hidden md:block">
-                <button id="zenModeBtn" class="text-slate-400 hover:text-sky-400 transition text-sm flex items-center gap-2">
+            <!-- Zen Mode Toggle -->
+            <div class="absolute top-4 right-4 hidden md:block z-50">
+                <button id="zenModeBtn" class="text-slate-400 hover:text-sky-400 transition text-sm flex items-center gap-2 bg-slate-800/50 px-3 py-1 rounded-full backdrop-blur-sm border border-slate-700/50 hover:border-sky-500/30">
                     <i class="fa-solid fa-expand"></i> Zen Mode
                 </button>
             </div>
@@ -115,22 +90,19 @@
                 </div>
                 
                 <h3 class="text-xl font-semibold text-white mb-4 border-b border-slate-700 pb-2">My Activity in the World of Code</h3>
-                <div id="progress-container" class="glass-panel p-6 rounded-xl">
+                <div id="progress-container" class="glass-panel p-6 rounded-xl min-h-[200px]">
                     <p id="no-progress-msg" class="text-slate-400 text-center py-8">
                         No activity recorded yet. <br>
                         <span class="text-sm">Go to the <b>Practice Lab</b> to write tests for what you've learned!</span>
                     </p>
-                    <div id="progress-list" class="space-y-3">
-                        <!-- Activity Items injected here -->
-                    </div>
+                    <div id="progress-list" class="space-y-3"></div>
                 </div>
             </div>
 
-            <!-- VIEW: Practice Lab (Replaces Quiz) -->
+            <!-- VIEW: Practice Lab -->
             <div id="view-practice" class="view-section hidden-force max-w-4xl mx-auto w-full animate-fade-in">
                 <h2 class="text-3xl font-bold text-white mb-2">Practice Lab</h2>
                 <p class="text-slate-400 mb-6">Select a concept and write a test case or re-write the code to prove your understanding.</p>
-                
                 <div class="glass-panel p-6 md:p-8 rounded-xl">
                     <form id="practiceForm">
                         <div class="mb-6">
@@ -145,12 +117,10 @@
                                 <option value="General - Logic">General Logic</option>
                             </select>
                         </div>
-
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-slate-300 mb-2">Your Code / Test Case</label>
-                            <textarea name="code" rows="8" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-white font-mono text-sm focus:border-sky-500 outline-none transition" placeholder="// Write your test case or code explanation here...&#10;Example: assert(reverse('hello') == 'olleh')"></textarea>
+                            <textarea name="code" rows="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-white font-mono text-sm focus:border-sky-500 outline-none transition resize-none" placeholder="// Write your test case or code explanation here..."></textarea>
                         </div>
-                        
                         <button type="submit" id="submitPracticeBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i> Submit to Activity Log
                         </button>
@@ -164,19 +134,16 @@
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fa-brands fa-java text-orange-500"></i> Java Concepts</h2>
                 <div id="java-examples" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
             </div>
-
             <!-- VIEW: Python -->
             <div id="view-python" class="view-section hidden-force w-full animate-fade-in">
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fa-brands fa-python text-yellow-400"></i> Python Concepts</h2>
                 <div id="python-examples" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
             </div>
-
             <!-- VIEW: C++ -->
             <div id="view-cpp" class="view-section hidden-force w-full animate-fade-in">
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-code text-blue-500"></i> C++ Concepts</h2>
                 <div id="cpp-examples" class="grid grid-cols-1 xl:grid-cols-2 gap-6"></div>
             </div>
-
             <!-- VIEW: SQL -->
             <div id="view-sql" class="view-section hidden-force w-full animate-fade-in">
                 <h2 class="text-3xl font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-database text-emerald-500"></i> SQL Concepts</h2>
@@ -186,7 +153,7 @@
         </main>
     </div>
 
-    <!-- Logic Explanation Modal -->
+    <!-- Logic Modal (Popup) -->
     <div id="logicModal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
         <div class="modal-content bg-slate-800 border border-sky-500/30 w-full max-w-2xl rounded-2xl p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
@@ -200,72 +167,59 @@
 
 <script>
     const API_URL = "/api"; 
-    let USER_TOKEN = null;
+    let USER_TOKEN = localStorage.getItem('userToken');
 
-    // --- 1. ELABORATED LOGIC DATA ---
-    // Deep explanations for learning concepts thoroughly
+    // --- DATA ---
     const logicData = {
-        // Python
-        "py1": "<p><strong>Concept: String Slicing</strong></p><p>In Python, slicing allows you to extract parts of a sequence (like a string or list) using the syntax <code>[start:stop:step]</code>.</p><ul class='list-disc ml-5 mt-2 space-y-2'><li><strong>Start</strong>: Where to begin. Defaults to 0.</li><li><strong>Stop</strong>: Where to end (exclusive). Defaults to length of string.</li><li><strong>Step</strong>: How many characters to jump. A negative step (<code>-1</code>) means 'step backwards'.</li></ul><p class='mt-2'>So, <code>[::-1]</code> effectively tells Python to read the entire string from the very end to the very beginning, reversing it instantly.</p>",
-        "py2": "<p><strong>Concept: Tuple Unpacking (In-place Swap)</strong></p><p>Most languages require a temporary variable to swap two numbers (<code>temp = a; a = b; b = temp;</code>). Python avoids this using <strong>Tuple Packing and Unpacking</strong>.</p><p class='mt-2'>The statement <code>a, b = b, a + 2</code> works in two stages:</p><ol class='list-decimal ml-5 mt-2 space-y-2'><li><strong>Right Hand Side Evaluation</strong>: Python creates a temporary tuple <code>(b, a+2)</code>. If b=5 and a=10, this tuple is <code>(5, 12)</code>.</li><li><strong>Assignment</strong>: This tuple is 'unpacked' into the variables on the left. <code>a</code> gets 5, <code>b</code> gets 12.</li></ol>",
-        "py3": "<p><strong>Concept: Dictionary Merge Operator</strong></p><p>Introduced in Python 3.9, the <code>|</code> (pipe) operator simplifies merging two dictionaries.</p><p class='mt-2'><code>a | b</code> creates a <strong>new</strong> dictionary containing all items from <code>a</code> and <code>b</code>. If both dictionaries have the same key, the value from the <strong>second</strong> dictionary (<code>b</code>) overwrites the first. This is cleaner than using <code>{**a, **b}</code> or <code>a.update(b)</code>.</p>",
-        
-        // Java
-        "java1": "<p><strong>Concept: Quadratic Formula</strong></p><p>This code solves <code>ax² + bx + c = 0</code>. The critical part is the <strong>Discriminant</strong> (<code>b² - 4ac</code>).</p><ul class='list-disc ml-5 mt-2 space-y-2'><li>If <strong>Discriminant > 0</strong>: Two distinct real roots exist. We calculate them using <code>Math.sqrt()</code>.</li><li>If <strong>Discriminant = 0</strong>: One real root (the curve touches the X-axis).</li><li>If <strong>Discriminant < 0</strong>: No real roots (Complex numbers). The code handles this by calculating the Real and Imaginary parts separately to print <code>x + yi</code> format.</li></ul>",
-        "java4": "<p><strong>Concept: Recursion</strong></p><p>Recursion is when a method calls itself to solve a smaller instance of the problem. </p><p class='mt-2'>In <code>addNumbers(20)</code>:</p><ul class='list-disc ml-5 mt-2 space-y-2'><li>It returns <code>20 + addNumbers(19)</code>.</li><li><code>addNumbers(19)</code> returns <code>19 + addNumbers(18)</code>.</li><li>... all the way down to 0.</li></ul><p>The <strong>Base Case</strong> (<code>if (num != 0)</code>) is crucial. Without it, the function would call itself forever, causing a <code>StackOverflowError</code>.</p>",
-        
-        // C++
-        "cpp4": "<p><strong>Concept: Control Flow & Math</strong></p><p>This C++ example demonstrates logical branching. The program must decide between three mathematical realities based on the variable <code>discriminant</code>.</p><p class='mt-2'>Notice the use of <code>float</code>. If we used <code>int</code>, division like <code>-b/(2*a)</code> might truncate decimal points, leading to incorrect answers. In engineering applications, type precision (float vs double) is vital.</p>",
-        "cpp7": "<p><strong>Concept: Structures (struct)</strong></p><p>Arrays hold data of the <em>same</em> type. But what if you need to store a Student's Name (string), Roll Number (int), and Marks (float) together?</p><p class='mt-2'>A <code>struct</code> creates a custom data type (composite type). <code>s[2]</code> creates an array of these custom structures, acting like a mini-database in memory.</p>",
-        
-        // SQL
-        "sql5": "<p><strong>Concept: Stored Procedures</strong></p><p>Instead of writing the same <code>SELECT</code> query every time you need customer data, you save the query on the database server as a 'Procedure'.</p><p class='mt-2'><strong>Benefits:</strong></p><ul class='list-disc ml-5 mt-2 space-y-2'><li><strong>Security</strong>: Users can execute the procedure without needing direct access to the tables.</li><li><strong>Performance</strong>: The database compiles and optimizes the plan once, making subsequent calls faster.</li><li><strong>Maintainability</strong>: Change the logic in one place, and all apps update automatically.</li></ul>"
+        "py1": "<p><strong>Concept: String Slicing</strong></p><p>In Python, slicing allows you to extract parts of a sequence using <code>[start:stop:step]</code>. A step of <code>-1</code> reverses the sequence.</p><p>This technique is fundamental for efficient data manipulation without loops.</p>",
+        "py2": "<p><strong>Concept: Tuple Unpacking</strong></p><p>Python allows swapping variables in a single line: <code>a, b = b, a</code>. This works by packing the values into a tuple on the right side and unpacking them into variables on the left side.</p>",
+        "py3": "<p><strong>Concept: Merge Operator</strong></p><p>The <code>|</code> operator (Python 3.9+) merges two dictionaries. If keys overlap, the value from the second dictionary overwrites the first.</p>",
+        "java1": "<p><strong>Concept: Quadratic Formula</strong></p><p>Calculates roots of <code>ax² + bx + c = 0</code> using the discriminant <code>b² - 4ac</code>. Handling the discriminant determines if roots are real, equal, or complex.</p>",
+        "java4": "<p><strong>Concept: Recursion</strong></p><p>A method calling itself. Crucial for dividing complex problems (like tree traversal) into simpler sub-problems. Must have a base case to stop execution.</p>",
+        "cpp4": "<p><strong>Concept: Precision & Branching</strong></p><p>Shows how to use <code>if/else</code> logic for mathematical decision making. Using <code>float</code> ensures division doesn't result in integer truncation.</p>",
+        "cpp7": "<p><strong>Concept: Structures</strong></p><p><code>struct</code> allows grouping different data types (int, char, float) under one name, acting as a blueprint for complex data records like a Student database.</p>",
+        "sql5": "<p><strong>Concept: Stored Procedures</strong></p><p>Pre-compiled SQL code saved on the database. Enhances security by hiding table structures and improves performance by caching execution plans.</p>"
     };
 
-    // --- CODE EXAMPLES (Same as before, just ensuring data is present) ---
     const codeExamples = {
         java: [
-            { id: "java1", title: "1. Quadratic Equation Solver", code: `public class Main {\n  public static void main(String[] args) {\n    double a = 2.3, b = 4, c = 5.6;\n    double root1, root2;\n    double discriminant = b * b - 4 * a * c;\n    // Logic to check discriminant > 0, == 0, or < 0\n    // ... (See full code in file)\n  }\n}` },
-            { id: "java4", title: "2. Recursion: Sum of Numbers", code: `public class AddNumbers {\n    public static void main(String[] args) {\n        int number = 20;\n        int sum = addNumbers(number);\n        System.out.println("Sum = " + sum);\n    }\n\n    public static int addNumbers(int num) {\n        if (num != 0)\n            return num + addNumbers(num - 1);\n        else\n            return num;\n    }\n}` }
+            { id: "java1", title: "1. Quadratic Equation Solver", code: `public class Main {\n  public static void main(String[] args) {\n    double a = 2.3, b = 4, c = 5.6;\n    // ... (Discriminant Logic)\n  }\n}` },
+            { id: "java4", title: "2. Recursion: Sum of Numbers", code: `public class AddNumbers {\n    public static int addNumbers(int num) {\n        if (num != 0)\n            return num + addNumbers(num - 1);\n        else\n            return num;\n    }\n}` }
         ],
         python: [
-            { id: "py1", title: "1. Reverse String (Slicing)", code: `a = "Hello World!"\nprint(a[::-1])\n\n# Output: !dlroW olleH` },
-            { id: "py2", title: "2. In-place Variable Swap", code: `a = 10\nb = 5\na, b = b, a + 2\nprint(f"Second: {a, b}")\n\n# Output: Second: (5, 12)` },
-            { id: "py3", title: "3. Dictionary Merge (|)", code: `a = {"a": 1, "b": 2}\nb = {"c": 3, "d": 4}\na_and_b = a | b\nprint(a_and_b)` }
+            { id: "py1", title: "1. Reverse String (Slicing)", code: `a = "Hello World!"\nprint(a[::-1])\n# Output: !dlroW olleH` },
+            { id: "py2", title: "2. In-place Swap", code: `a = 10\nb = 5\na, b = b, a\nprint(a, b)` },
+            { id: "py3", title: "3. Dictionary Merge (|)", code: `x = {"key1": "value1"}\ny = {"key2": "value2"}\nz = x | y` }
         ],
         cpp: [
-             { id: "cpp4", title: "1. Roots of Quadratic Equation", code: `#include <iostream>\n#include <cmath>\nusing namespace std;\n// ... Calculation logic` },
-             { id: "cpp7", title: "2. Data Structures (struct)", code: `struct student {\n    char name[50];\n    int roll;\n    float marks;\n} s[10];\n// Array of structs` }
+             { id: "cpp4", title: "1. Quadratic Roots", code: `#include <iostream>\n// ... Standard quadratic logic` },
+             { id: "cpp7", title: "2. Structs", code: `struct student {\n    char name[50];\n    int roll;\n} s;` }
         ],
         sql: [
-            { id: "sql5", title: "1. Stored Procedures", code: `CREATE PROCEDURE ctr_customers (ctr VARCHAR(50))\nBEGIN\n  SELECT customer_id, first_name\n  FROM Customers\n  WHERE Country = ctr;\nEND` }
+            { id: "sql5", title: "1. Stored Procedures", code: `CREATE PROCEDURE GetCustomers\nAS\nSELECT * FROM Customers\nGO;` }
         ]
     };
 
-    // --- 2. APP LOGIC ---
+    // --- APP LOGIC ---
     
     function switchTab(tabName) {
-        // Update Sidebar UI
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         const activeLink = document.getElementById(`nav-${tabName}`);
         if(activeLink) activeLink.classList.add('active');
         
-        // Mobile: Close sidebar after click
         const sidebar = document.getElementById('sidebar');
         if (!sidebar.classList.contains('sidebar-closed') && window.innerWidth < 768) {
             sidebar.classList.add('sidebar-closed');
             sidebar.classList.remove('sidebar-open');
         }
 
-        // Switch View
         document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden-force'));
         const targetView = document.getElementById(`view-${tabName}`);
         if(targetView) {
             targetView.classList.remove('hidden-force');
-            // Fade in effect
-            targetView.style.opacity = '0';
-            setTimeout(() => targetView.style.opacity = '1', 50);
-            targetView.style.transition = 'opacity 0.3s ease';
+            targetView.style.animation = 'none';
+            targetView.offsetHeight; /* trigger reflow */
+            targetView.style.animation = null; 
         }
 
         if (tabName === 'dashboard') fetchProgress();
@@ -273,7 +227,7 @@
 
     function loadExamples() {
         const createCard = (item) => `
-            <div class="glass-panel p-6 rounded-xl hover:border-sky-500/50 transition group">
+            <div class="glass-panel p-6 rounded-xl hover:border-sky-500/50 transition group relative">
                 <div class="flex justify-between items-start mb-4">
                     <h3 class="text-lg font-semibold text-sky-400 group-hover:text-sky-300">${item.title}</h3>
                     <button data-logic="${item.id}" class="logic-btn text-xs bg-sky-600 hover:bg-sky-500 px-3 py-1.5 rounded text-white transition font-bold shadow-lg shadow-sky-900/20">Explain Logic</button>
@@ -299,8 +253,7 @@
         document.querySelectorAll('.logic-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const key = e.target.dataset.logic;
-                document.getElementById('logicBody').innerHTML = logicData[key] || "<p>Detailed explanation coming soon. Focus on the syntax for now!</p>";
-                document.getElementById('logicTitle').innerHTML = "Logic Breakdown";
+                document.getElementById('logicBody').innerHTML = logicData[key] || "<p>Detailed explanation coming soon.</p>";
                 modal.classList.add('open');
             });
         });
@@ -314,7 +267,10 @@
         
         try {
             const res = await fetch(`${API_URL}/progress`, { headers: { 'Authorization': USER_TOKEN } });
-            if (!res.ok) { if (res.status === 401) logout(); return; }
+            if (!res.ok) { 
+                if (res.status === 401) logout(); 
+                return; 
+            }
             
             const activities = await res.json();
             
@@ -324,24 +280,23 @@
             } else {
                 noProgressMsg.classList.add('hidden-force');
                 progressList.innerHTML = activities.map(a => `
-                    <div class="flex justify-between items-center bg-slate-800/50 border border-slate-700 p-4 rounded-lg hover:bg-slate-800 transition">
+                    <div class="flex justify-between items-center bg-slate-800/50 border border-slate-700 p-4 rounded-lg hover:bg-slate-800 transition animate-fade-in">
                         <div class="flex items-center gap-4">
                             <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-full">
                                 <i class="fa-solid fa-check"></i>
                             </div>
                             <div>
                                 <span class="font-bold text-white block">${a.quizName}</span>
-                                <span class="text-xs text-slate-400">Completed: ${new Date(a.completedAt).toLocaleDateString()} at ${new Date(a.completedAt).toLocaleTimeString()}</span>
+                                <span class="text-xs text-slate-400">Completed: ${new Date(a.completedAt).toLocaleString()}</span>
                             </div>
                         </div>
-                        <div class="text-sm font-bold text-sky-400 bg-sky-900/20 px-3 py-1 rounded">Logged</div>
+                        <div class="text-xs font-bold text-sky-400 bg-sky-900/20 px-3 py-1 rounded uppercase tracking-wide">Logged</div>
                     </div>
                 `).join('');
             }
         } catch (err) { console.error(err); }
     }
 
-    // SUBMIT PRACTICE (Replaces Quiz Submission)
     async function submitPractice(e) {
         e.preventDefault();
         const submitBtn = document.getElementById('submitPracticeBtn');
@@ -350,7 +305,6 @@
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
         const formData = new FormData(e.target);
-        // We structure the data to match what the backend expects
         const payload = {
             topic: formData.get('topic'),
             code: formData.get('code')
@@ -364,16 +318,22 @@
             });
 
             if (res.ok) {
-                resultDiv.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Activity Logged Successfully!</span>`;
+                resultDiv.innerHTML = `<span class="text-emerald-400 font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Activity Logged Successfully!</span>`;
                 resultDiv.classList.remove('hidden-force');
                 e.target.reset();
-                setTimeout(() => switchTab('dashboard'), 1000);
+                // Auto-redirect to Dashboard after success
+                setTimeout(() => {
+                    switchTab('dashboard');
+                    resultDiv.classList.add('hidden-force');
+                }, 1500);
             } else {
                 resultDiv.innerHTML = `<span class="text-red-400">Save failed. Try again.</span>`;
                 resultDiv.classList.remove('hidden-force');
             }
         } catch(err) {
             console.error(err);
+            resultDiv.innerHTML = `<span class="text-red-400">Error connecting to server.</span>`;
+            resultDiv.classList.remove('hidden-force');
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit to Activity Log';
@@ -383,28 +343,26 @@
     function logout() {
         localStorage.clear();
         USER_TOKEN = null;
-        window.location.reload();
+        // Fix for Invalid URL error: Use origin directly
+        window.location.href = window.location.origin + '/login.html';
     }
 
-    // --- 3. INITIALIZATION ---
+    // INITIALIZATION
     document.addEventListener('DOMContentLoaded', () => {
-        const authContainer = document.getElementById('authContainer');
-        const mainApp = document.getElementById('mainAppContent');
-        USER_TOKEN = localStorage.getItem('userToken');
-
-        if(USER_TOKEN) {
-            authContainer.classList.add('hidden-force');
-            mainApp.classList.remove('hidden-force');
-            mainApp.classList.add('flex-force');
+        // 1. Display User Info
+        if(localStorage.getItem('userEmail')) {
             document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail').split('@')[0];
-            loadExamples(); 
-            fetchProgress(); 
-        } else {
-            authContainer.classList.remove('hidden-force');
-            mainApp.classList.add('hidden-force');
         }
 
-        // Mobile Menu Toggle
+        // 2. Load Static Content
+        loadExamples(); 
+        fetchProgress(); 
+
+        // 3. Attach Global Listeners
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('practiceForm').addEventListener('submit', submitPractice);
+        
+        // Mobile Sidebar Toggle
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         mobileBtn.addEventListener('click', () => {
@@ -416,64 +374,15 @@
                 sidebar.classList.remove('sidebar-open');
             }
         });
-
+        
         // Zen Mode Toggle
-        const zenBtn = document.getElementById('zenModeBtn');
-        zenBtn.addEventListener('click', () => {
+        document.getElementById('zenModeBtn').addEventListener('click', () => {
             document.body.classList.toggle('zen-mode');
-            zenBtn.innerHTML = document.body.classList.contains('zen-mode') 
+            const isZen = document.body.classList.contains('zen-mode');
+            document.getElementById('zenModeBtn').innerHTML = isZen 
                 ? '<i class="fa-solid fa-compress"></i> Exit Zen' 
                 : '<i class="fa-solid fa-expand"></i> Zen Mode';
         });
-
-        // Auth Listeners
-        document.getElementById('showRegisterLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginPage').classList.add('hidden-force'); document.getElementById('registerPage').classList.remove('hidden-force'); });
-        document.getElementById('showLoginLink').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerPage').classList.add('hidden-force'); document.getElementById('loginPage').classList.remove('hidden-force'); });
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorMsg = document.getElementById('loginError');
-            errorMsg.textContent = "Entering World...";
-            
-            try {
-                const res = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                if(res.ok) {
-                    const data = await res.json();
-                    const token = btoa(`${email}:${password}`);
-                    localStorage.setItem('userToken', `Basic ${token}`);
-                    localStorage.setItem('userEmail', data.email);
-                    window.location.reload();
-                } else {
-                    errorMsg.textContent = "Invalid credentials.";
-                }
-            } catch (err) { errorMsg.textContent = "Server connection failed."; }
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // Registration logic same as before...
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const msg = document.getElementById('registerMessage');
-            try {
-                const res = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                if(res.ok) { msg.textContent = "Success! Please Login."; msg.style.color = "#34d399"; }
-                else { msg.textContent = "Failed."; msg.style.color = "#f87171"; }
-            } catch (err) { msg.textContent = "Error."; }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('practiceForm').addEventListener('submit', submitPractice);
     });
 </script>
 </body>

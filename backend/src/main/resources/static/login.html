@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CodeJourney</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="h-screen w-screen bg-slate-900 text-white flex items-center justify-center bg-space">
+
+    <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-sm"></div>
+    
+    <!-- LOGIN FORM -->
+    <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 mx-4 animate-fade-in">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text tracking-tight">CodeJourney</h1>
+            <p class="text-slate-400 mt-2 text-sm">Your daily path to mastery</p>
+        </div>
+        <form id="loginForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="loginEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none transition" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="loginPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none transition" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all transform hover:scale-[1.02]">Enter World</button>
+        </form>
+        <p id="loginError" class="text-red-400 text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            New here? <a href="#" id="showRegisterLink" class="text-sky-400 hover:text-sky-300 font-medium">Create an account</a>
+        </div>
+    </div>
+
+    <!-- REGISTER FORM (Hidden by default) -->
+    <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 hidden-force mx-4">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold gradient-text">Join Us</h1>
+            <p class="text-slate-400 mt-2 text-sm">Begin your legacy</p>
+        </div>
+        <form id="registerForm" class="space-y-5">
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Email Address</label>
+                <input type="email" id="registerEmail" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none transition" placeholder="name@example.com" required>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                <input type="password" id="registerPassword" class="mt-1 w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none transition" placeholder="Min. 6 characters" required>
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all transform hover:scale-[1.02]">Create Account</button>
+        </form>
+        <p id="registerMessage" class="text-center mt-4 text-sm"></p>
+        <div class="mt-6 text-center text-sm text-slate-500">
+            Already a member? <a href="#" id="showLoginLink" class="text-sky-400 hover:text-sky-300 font-medium">Sign In</a>
+        </div>
+    </div>
+
+<script>
+    const API_URL = "/api";
+
+    // 1. Toggle Forms
+    document.getElementById('showRegisterLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginPage').classList.add('hidden-force');
+        document.getElementById('registerPage').classList.remove('hidden-force');
+        document.getElementById('registerPage').classList.add('animate-fade-in');
+    });
+
+    document.getElementById('showLoginLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('registerPage').classList.add('hidden-force');
+        document.getElementById('loginPage').classList.remove('hidden-force');
+        document.getElementById('loginPage').classList.add('animate-fade-in');
+    });
+
+    // 2. Handle Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorMsg = document.getElementById('loginError');
+        
+        errorMsg.textContent = "Authenticating...";
+        
+        try {
+            const res = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            if(res.ok) {
+                const data = await res.json();
+                // Create token for Basic Auth
+                const token = btoa(`${email}:${password}`);
+                localStorage.setItem('userToken', `Basic ${token}`);
+                localStorage.setItem('userEmail', data.email);
+                
+                // REDIRECT TO MAIN APP - Fixed URL construction
+                window.location.href = window.location.origin + '/index.html';
+            } else {
+                errorMsg.textContent = "Invalid credentials. Please try again.";
+            }
+        } catch (err) {
+            errorMsg.textContent = "Server connection failed.";
+        }
+    });
+
+    // 3. Handle Registration
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const msg = document.getElementById('registerMessage');
+        
+        msg.textContent = "Creating account...";
+        msg.style.color = "#94a3b8";
+
+        try {
+            const res = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if(res.ok) {
+                msg.textContent = "Success! Redirecting to login...";
+                msg.style.color = "#34d399";
+                setTimeout(() => {
+                    document.getElementById('showLoginLink').click();
+                }, 1500);
+            } else {
+                const data = await res.json();
+                msg.textContent = data.error || "Registration failed.";
+                msg.style.color = "#f87171";
+            }
+        } catch (err) {
+            msg.textContent = "Error connecting to server.";
+            msg.style.color = "#f87171";
+        }
+    });
+</script>
+</body>
+</html>
