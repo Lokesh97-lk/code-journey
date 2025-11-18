@@ -8,10 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <!-- Markdown Parser for AI responses -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        // SECURITY CHECK: Redirect if not logged in
+        // SECURITY CHECK: Run immediately on page load
         if (!localStorage.getItem('userToken')) {
-            // Fix for Invalid URL error: Use origin directly
             window.location.href = window.location.origin + '/login.html';
         }
     </script>
@@ -102,12 +103,16 @@
             <!-- VIEW: Practice Lab -->
             <div id="view-practice" class="view-section hidden-force max-w-4xl mx-auto w-full animate-fade-in">
                 <h2 class="text-3xl font-bold text-white mb-2">Practice Lab</h2>
-                <p class="text-slate-400 mb-6">Select a concept and write a test case or re-write the code to prove your understanding.</p>
-                <div class="glass-panel p-6 md:p-8 rounded-xl">
+                <p class="text-slate-400 mb-6">Select a concept, write your code, and get AI feedback.</p>
+                
+                <div class="glass-panel p-6 md:p-8 rounded-xl relative overflow-hidden">
+                    <!-- AI Background Glow -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
                     <form id="practiceForm">
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-slate-300 mb-2">Topic / Concept</label>
-                            <select name="topic" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none">
+                            <select id="practiceTopic" name="topic" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-sky-500 outline-none">
                                 <option value="Python - Slicing">Python: String Slicing</option>
                                 <option value="Python - Dictionaries">Python: Dictionary Merging</option>
                                 <option value="Java - Recursion">Java: Recursion</option>
@@ -119,12 +124,32 @@
                         </div>
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-slate-300 mb-2">Your Code / Test Case</label>
-                            <textarea name="code" rows="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-white font-mono text-sm focus:border-sky-500 outline-none transition resize-none" placeholder="// Write your test case or code explanation here..."></textarea>
+                            <textarea id="practiceCode" name="code" rows="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-white font-mono text-sm focus:border-sky-500 outline-none transition resize-none" placeholder="// Write your implementation here..."></textarea>
                         </div>
-                        <button type="submit" id="submitPracticeBtn" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-paper-plane"></i> Submit to Activity Log
-                        </button>
+                        
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <!-- Submit to DB Button -->
+                            <button type="submit" id="submitPracticeBtn" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Log Activity
+                            </button>
+                            
+                            <!-- Gemini AI Button -->
+                            <button type="button" id="analyzeBtn" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3 rounded-lg shadow-lg transition-all flex justify-center items-center gap-2 border border-white/10">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze with Gemini
+                            </button>
+                        </div>
                     </form>
+                    
+                    <!-- Gemini Response Area -->
+                    <div id="aiFeedback" class="mt-6 hidden-force border-t border-slate-700 pt-6 animate-fade-in">
+                        <h4 class="text-lg font-bold gradient-text mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-robot"></i> AI Mentor Feedback
+                        </h4>
+                        <div id="aiResponseContent" class="bg-slate-900/50 p-4 rounded-lg text-slate-300 text-sm leading-relaxed markdown-body">
+                            <!-- AI Content Goes Here -->
+                        </div>
+                    </div>
+
                     <div id="practiceResult" class="mt-4 text-center hidden-force"></div>
                 </div>
             </div>
@@ -168,17 +193,20 @@
 <script>
     const API_URL = "/api"; 
     let USER_TOKEN = localStorage.getItem('userToken');
+    
+    // GEMINI API KEY (Provided by environment)
+    const apiKey = ""; 
 
     // --- DATA ---
     const logicData = {
-        "py1": "<p><strong>Concept: String Slicing</strong></p><p>In Python, slicing allows you to extract parts of a sequence using <code>[start:stop:step]</code>. A step of <code>-1</code> reverses the sequence.</p><p>This technique is fundamental for efficient data manipulation without loops.</p>",
-        "py2": "<p><strong>Concept: Tuple Unpacking</strong></p><p>Python allows swapping variables in a single line: <code>a, b = b, a</code>. This works by packing the values into a tuple on the right side and unpacking them into variables on the left side.</p>",
-        "py3": "<p><strong>Concept: Merge Operator</strong></p><p>The <code>|</code> operator (Python 3.9+) merges two dictionaries. If keys overlap, the value from the second dictionary overwrites the first.</p>",
-        "java1": "<p><strong>Concept: Quadratic Formula</strong></p><p>Calculates roots of <code>ax² + bx + c = 0</code> using the discriminant <code>b² - 4ac</code>. Handling the discriminant determines if roots are real, equal, or complex.</p>",
-        "java4": "<p><strong>Concept: Recursion</strong></p><p>A method calling itself. Crucial for dividing complex problems (like tree traversal) into simpler sub-problems. Must have a base case to stop execution.</p>",
-        "cpp4": "<p><strong>Concept: Precision & Branching</strong></p><p>Shows how to use <code>if/else</code> logic for mathematical decision making. Using <code>float</code> ensures division doesn't result in integer truncation.</p>",
-        "cpp7": "<p><strong>Concept: Structures</strong></p><p><code>struct</code> allows grouping different data types (int, char, float) under one name, acting as a blueprint for complex data records like a Student database.</p>",
-        "sql5": "<p><strong>Concept: Stored Procedures</strong></p><p>Pre-compiled SQL code saved on the database. Enhances security by hiding table structures and improves performance by caching execution plans.</p>"
+        "py1": "<p><strong>Concept: String Slicing</strong></p><p>In Python, slicing allows you to extract parts of a sequence using <code>[start:stop:step]</code>. A step of <code>-1</code> reverses the sequence.</p>",
+        "py2": "<p><strong>Concept: Tuple Unpacking</strong></p><p>Python allows swapping variables in a single line: <code>a, b = b, a</code>. This works by packing the values into a tuple.</p>",
+        "py3": "<p><strong>Concept: Merge Operator</strong></p><p>The <code>|</code> operator (Python 3.9+) merges two dictionaries.</p>",
+        "java1": "<p><strong>Concept: Quadratic Formula</strong></p><p>Calculates roots of <code>ax² + bx + c = 0</code> using the discriminant <code>b² - 4ac</code>.</p>",
+        "java4": "<p><strong>Concept: Recursion</strong></p><p>A method calling itself. Crucial for dividing complex problems into simpler sub-problems.</p>",
+        "cpp4": "<p><strong>Concept: Precision & Branching</strong></p><p>Shows how to use <code>if/else</code> logic for mathematical decision making.</p>",
+        "cpp7": "<p><strong>Concept: Structures</strong></p><p><code>struct</code> allows grouping different data types (int, char, float) under one name.</p>",
+        "sql5": "<p><strong>Concept: Stored Procedures</strong></p><p>Pre-compiled SQL code saved on the database for security and performance.</p>"
     };
 
     const codeExamples = {
@@ -218,7 +246,7 @@
         if(targetView) {
             targetView.classList.remove('hidden-force');
             targetView.style.animation = 'none';
-            targetView.offsetHeight; /* trigger reflow */
+            targetView.offsetHeight; 
             targetView.style.animation = null; 
         }
 
@@ -262,24 +290,20 @@
 
     async function fetchProgress() {
         if (!USER_TOKEN) return; 
-        const progressList = document.getElementById('progress-list');
-        const noProgressMsg = document.getElementById('no-progress-msg');
-        
         try {
             const res = await fetch(`${API_URL}/progress`, { headers: { 'Authorization': USER_TOKEN } });
             if (!res.ok) { 
                 if (res.status === 401) logout(); 
                 return; 
             }
-            
             const activities = await res.json();
-            
+            const list = document.getElementById('progress-list');
             if (activities.length === 0) {
-                progressList.innerHTML = '';
-                noProgressMsg.classList.remove('hidden-force');
+                list.innerHTML = '';
+                document.getElementById('no-progress-msg').classList.remove('hidden-force');
             } else {
-                noProgressMsg.classList.add('hidden-force');
-                progressList.innerHTML = activities.map(a => `
+                document.getElementById('no-progress-msg').classList.add('hidden-force');
+                list.innerHTML = activities.map(a => `
                     <div class="flex justify-between items-center bg-slate-800/50 border border-slate-700 p-4 rounded-lg hover:bg-slate-800 transition animate-fade-in">
                         <div class="flex items-center gap-4">
                             <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-full">
@@ -287,7 +311,7 @@
                             </div>
                             <div>
                                 <span class="font-bold text-white block">${a.quizName}</span>
-                                <span class="text-xs text-slate-400">Completed: ${new Date(a.completedAt).toLocaleString()}</span>
+                                <span class="text-xs text-slate-400">Completed: ${new Date(a.completedAt).toLocaleDateString()}</span>
                             </div>
                         </div>
                         <div class="text-xs font-bold text-sky-400 bg-sky-900/20 px-3 py-1 rounded uppercase tracking-wide">Logged</div>
@@ -295,6 +319,48 @@
                 `).join('');
             }
         } catch (err) { console.error(err); }
+    }
+
+    // --- GEMINI INTEGRATION ---
+    async function analyzeCode() {
+        const topic = document.getElementById('practiceTopic').value;
+        const code = document.getElementById('practiceCode').value;
+        const feedbackBox = document.getElementById('aiFeedback');
+        const responseContent = document.getElementById('aiResponseContent');
+        const btn = document.getElementById('analyzeBtn');
+
+        if(!code.trim()) {
+            alert("Please write some code first!");
+            return;
+        }
+
+        // UI Loading State
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Thinking...';
+        feedbackBox.classList.add('hidden-force');
+
+        const prompt = `I am learning ${topic}. Here is my code:\n\n${code}\n\nPlease act as a friendly coding mentor. 1. Check for errors. 2. Rate logic out of 10. 3. Give one specific tip to improve it. Keep it concise.`;
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            const data = await response.json();
+            const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't analyze that.";
+
+            // Render Markdown if marked.js is loaded, else plain text
+            responseContent.innerHTML = typeof marked !== 'undefined' ? marked.parse(aiText) : aiText;
+            feedbackBox.classList.remove('hidden-force');
+        } catch (error) {
+            console.error("Gemini Error:", error);
+            alert("AI Service Unavailable. Check console.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Analyze with Gemini';
+        }
     }
 
     async function submitPractice(e) {
@@ -305,10 +371,7 @@
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
         const formData = new FormData(e.target);
-        const payload = {
-            topic: formData.get('topic'),
-            code: formData.get('code')
-        };
+        const payload = { topic: formData.get('topic'), code: formData.get('code') };
 
         try {
             const res = await fetch(`${API_URL}/activity/submit`, {
@@ -318,64 +381,47 @@
             });
 
             if (res.ok) {
-                resultDiv.innerHTML = `<span class="text-emerald-400 font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Activity Logged Successfully!</span>`;
+                resultDiv.innerHTML = `<span class="text-emerald-400 font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Activity Logged!</span>`;
                 resultDiv.classList.remove('hidden-force');
                 e.target.reset();
-                // Auto-redirect to Dashboard after success
-                setTimeout(() => {
-                    switchTab('dashboard');
-                    resultDiv.classList.add('hidden-force');
-                }, 1500);
+                document.getElementById('aiFeedback').classList.add('hidden-force'); // Hide previous AI result
+                setTimeout(() => { switchTab('dashboard'); resultDiv.classList.add('hidden-force'); }, 1500);
             } else {
-                resultDiv.innerHTML = `<span class="text-red-400">Save failed. Try again.</span>`;
+                resultDiv.innerHTML = `<span class="text-red-400">Save failed.</span>`;
                 resultDiv.classList.remove('hidden-force');
             }
         } catch(err) {
             console.error(err);
-            resultDiv.innerHTML = `<span class="text-red-400">Error connecting to server.</span>`;
-            resultDiv.classList.remove('hidden-force');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit to Activity Log';
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Log Activity';
         }
     }
 
     function logout() {
         localStorage.clear();
         USER_TOKEN = null;
-        // Fix for Invalid URL error: Use origin directly
         window.location.href = window.location.origin + '/login.html';
     }
 
-    // INITIALIZATION
     document.addEventListener('DOMContentLoaded', () => {
-        // 1. Display User Info
         if(localStorage.getItem('userEmail')) {
             document.getElementById('userEmailDisplay').textContent = localStorage.getItem('userEmail').split('@')[0];
         }
-
-        // 2. Load Static Content
         loadExamples(); 
         fetchProgress(); 
 
-        // 3. Attach Global Listeners
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('practiceForm').addEventListener('submit', submitPractice);
+        document.getElementById('analyzeBtn').addEventListener('click', analyzeCode);
         
-        // Mobile Sidebar Toggle
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         mobileBtn.addEventListener('click', () => {
-            if (sidebar.classList.contains('sidebar-closed')) {
-                sidebar.classList.remove('sidebar-closed');
-                sidebar.classList.add('sidebar-open');
-            } else {
-                sidebar.classList.add('sidebar-closed');
-                sidebar.classList.remove('sidebar-open');
-            }
+            sidebar.classList.toggle('sidebar-closed');
+            sidebar.classList.toggle('sidebar-open');
         });
         
-        // Zen Mode Toggle
         document.getElementById('zenModeBtn').addEventListener('click', () => {
             document.body.classList.toggle('zen-mode');
             const isZen = document.body.classList.contains('zen-mode');
