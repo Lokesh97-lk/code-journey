@@ -3,7 +3,6 @@ package com.codejourney.backend;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,16 +35,15 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // Disable the pop-up asking for sign-in
+            // FIX: Disable the browser's native login popup
             .httpBasic(AbstractHttpConfigurer::disable) 
+            .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // FIX: Explicitly allow login.html and all other static files
-                .requestMatchers("/", "/index.html", "/login.html", "/*.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                // Allow the Register and Login API endpoints
+                // PUBLIC ACCESS: UI files and Auth APIs
+                .requestMatchers("/", "/index.html", "/login.html", "/style.css", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 .requestMatchers("/api/register", "/api/login").permitAll()
-                // Protect everything else (like submitting practice code)
-                .requestMatchers("/api/activity/submit", "/api/progress").authenticated()
+                // PROTECTED ACCESS: Everything else requires a token
                 .anyRequest().authenticated()
             );
         return http.build();

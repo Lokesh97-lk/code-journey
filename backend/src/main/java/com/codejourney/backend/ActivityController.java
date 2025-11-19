@@ -24,13 +24,12 @@ public class ActivityController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String topic = payload.getOrDefault("topic", "General Practice");
-        // We save the topic name. The code is not executed server-side for security, 
-        // but we log that the user practiced this concept.
+        // We log that the user practiced this concept
         
         UserScore activityLog = new UserScore();
         activityLog.setUser(currentUser);
         activityLog.setQuizName(topic); 
-        activityLog.setScore(100); // Mark as completed
+        activityLog.setScore(100);
         activityLog.setMaxScore(100);
         
         userScoreRepository.save(activityLog);
