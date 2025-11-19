@@ -36,14 +36,15 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .httpBasic(Customizer.withDefaults()) 
+            // Disable the pop-up asking for sign-in
+            .httpBasic(AbstractHttpConfigurer::disable) 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public Assets
-                .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                // Public API
+                // FIX: Explicitly allow login.html and all other static files
+                .requestMatchers("/", "/index.html", "/login.html", "/*.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                // Allow the Register and Login API endpoints
                 .requestMatchers("/api/register", "/api/login").permitAll()
-                // Protected API
+                // Protect everything else (like submitting practice code)
                 .requestMatchers("/api/activity/submit", "/api/progress").authenticated()
                 .anyRequest().authenticated()
             );
