@@ -11,8 +11,10 @@
 </head>
 <body class="h-screen w-screen flex items-center justify-center bg-slate-900 relative overflow-hidden">
 
+    <!-- Dynamic Background Overlay -->
     <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm z-0"></div>
 
+    <!-- LOGIN CARD -->
     <div id="loginPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 mx-4 animate-fade-in">
         <div class="text-center mb-8">
             <div class="inline-block p-3 rounded-full bg-sky-500/10 mb-4">
@@ -50,6 +52,7 @@
         </div>
     </div>
 
+    <!-- REGISTER CARD (Hidden by default) -->
     <div id="registerPage" class="relative z-10 w-full max-w-md glass-panel p-8 rounded-2xl shadow-2xl border-t border-slate-700 mx-4 hidden">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-white">Join the Journey</h1>
@@ -123,7 +126,8 @@
                     localStorage.setItem('userToken', `Basic ${token}`);
                     localStorage.setItem('userEmail', data.email);
                     
-                    window.location.href = 'index.html';
+                    // Fix for "Invalid URL" error: Construct absolute URL explicitly
+                    window.location.href = new URL('index.html', window.location.href).href;
                 } else {
                     errorMsg.textContent = "Invalid credentials. Please try again.";
                     errorMsg.className = "text-red-400 text-center mt-4 text-sm font-bold";
