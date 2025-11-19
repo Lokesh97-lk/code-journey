@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Markdown Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         // SECURITY & REDIRECT FIX
-        // This prevents the "Invalid URL" error by constructing a full address
         if (!localStorage.getItem('userToken')) {
             const loginUrl = new URL('login.html', window.location.href).href;
             window.location.href = loginUrl;
@@ -81,13 +81,18 @@
             <div id="view-dashboard" class="view-section max-w-5xl mx-auto animate-fade-in">
                 <div class="mb-8">
                     <h2 class="text-3xl md:text-4xl font-bold text-white">Welcome Back, <span id="userEmailDisplay" class="text-sky-400">Dev</span></h2>
-                    <p class="text-slate-400 mt-2">Ready to master your 34 concepts?</p>
+                    <p class="text-slate-400 mt-2">Here is your activity in the world of code.</p>
                 </div>
+                
                 <div class="glass-panel p-6 rounded-xl min-h-[200px]">
-                    <h3 class="text-xl font-semibold text-white mb-4 border-b border-slate-700 pb-2">My Activity</h3>
-                    <div id="progress-list" class="space-y-3"></div>
-                    <p id="no-progress-msg" class="text-slate-400 text-center py-8 hidden">
-                        No activity yet.<br>Go to the <b>Library</b>, pick a concept, and write a test!
+                    <h3 class="text-xl font-semibold text-white mb-6 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <i class="fa-solid fa-clock-rotate-left text-sky-400"></i> Recent Activity
+                    </h3>
+                    <div id="progress-list" class="space-y-4"></div>
+                    <p id="no-progress-msg" class="text-slate-400 text-center py-12 hidden">
+                        <span class="block text-5xl mb-4 opacity-20"><i class="fa-solid fa-code-branch"></i></span>
+                        No activity recorded yet.<br>
+                        <span class="text-sm mt-2 block">Go to the <b>Library</b>, pick a concept, and write a test!</span>
                     </p>
                 </div>
             </div>
@@ -116,7 +121,9 @@
                             </button>
                         </div>
                     </form>
-                    <div id="aiFeedback" class="mt-6 hidden border-t border-slate-700 pt-4 markdown-body text-sm text-slate-300"></div>
+                    
+                    <!-- Gemini Response Area -->
+                    <div id="aiFeedback" class="mt-6 hidden border-t border-slate-700 pt-6 markdown-body text-sm text-slate-300 bg-slate-900/50 p-4 rounded-lg"></div>
                     <div id="practiceResult" class="mt-3 text-center hidden"></div>
                 </div>
             </div>
@@ -142,14 +149,14 @@
         </main>
     </div>
 
-    <!-- NEW LOGIC MODAL (Fixes Empty Box Issue) -->
+    <!-- LOGIC EXPLANATION MODAL -->
     <div id="logicModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
         <div class="bg-slate-800 border border-sky-500/30 w-full max-w-2xl mx-4 rounded-xl shadow-2xl transform scale-95 transition-transform duration-300 max-h-[85vh] flex flex-col">
             <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50 rounded-t-xl">
-                <h3 class="text-xl font-bold text-sky-400">Logic Explanation</h3>
+                <h3 class="text-xl font-bold text-sky-400">Detailed Logic Explanation</h3>
                 <button id="closeModal" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
             </div>
-            <div id="logicBody" class="p-6 overflow-y-auto text-slate-300 space-y-4 leading-relaxed text-sm md:text-base min-h-[100px]">
+            <div id="logicBody" class="p-8 overflow-y-auto text-slate-300 space-y-6 leading-loose text-base md:text-lg min-h-[100px]">
                 <!-- Content injected here -->
             </div>
         </div>
@@ -157,100 +164,127 @@
 
     <script>
         const API_URL = "/api";
-        const GEMINI_API_KEY = ""; 
+        const apiKey = ""; // ENTER YOUR GEMINI API KEY HERE IF RUNNING LOCALLY
 
-        // --- FULL LOGIC DATABASE (Ensures no empty boxes) ---
+        // --- DETAILED LOGIC EXPLANATIONS (Paragraph Style) ---
         const logicData = {
             // PYTHON
-            "py_1": "<h4>String Slicing <code>[::-1]</code></h4><p>The syntax is <code>[start:stop:step]</code>. By leaving start and stop empty, we select the whole string. A step of <code>-1</code> reads it backwards.</p>",
-            "py_2": "<h4>In-Place Swap</h4><p>Python packs values into a tuple on the right <code>(b, a)</code> then unpacks them into variables on the left <code>a, b</code>. No temporary variable needed!</p>",
-            "py_3": "<h4>Dictionary Merge <code>|</code></h4><p>The <code>|</code> operator (Python 3.9+) merges dicts. If keys overlap, the right-side dictionary wins.</p>",
-            "py_4": "<h4>setdefault()</h4><p>Checks if a key exists. If not, inserts it with a default value (0). Useful for counting without errors.</p>",
-            "py_5": "<h4>Regex Groups</h4><p><code>(0)?</code> = optional '0'. <code>\\d{10}</code> = exactly 10 digits. Parentheses capture parts of the match.</p>",
-            "py_6": "<h4>Regex OR <code>|</code></h4><p><code>(man|woman)</code> matches 'man' OR 'woman'. This allows searching for multiple variations at once.</p>",
-            "py_7": "<h4>Set Operations</h4><p><code>-</code> finds difference (in A not B). <code>^</code> finds symmetric difference (unique to A or B, not both).</p>",
-            "py_8": "<h4>Palindrome</h4><p><code>casefold()</code> ignores case. <code>reversed()</code> flips it. If list(original) == list(reversed), it's a palindrome.</p>",
-            "py_9": "<h4>File Hash</h4><p>Reads file in 1024-byte chunks to save RAM. Updates the SHA1 hash state with each chunk.</p>",
-            "py_10": "<h4>List Flattening</h4><p>Logic: <code>for sublist in list</code> -> <code>for item in sublist</code>. Reads left-to-right in comprehension.</p>",
+            "py_1": "<p><strong>String Slicing:</strong> The syntax <code>a[::-1]</code> is a powerful Python idiom utilizing the slicing operator <code>[start:stop:step]</code>. When <code>start</code> and <code>stop</code> are omitted, Python defaults to the beginning and end of the sequence. The crucial part is the <code>step</code> value of <code>-1</code>. This tells Python to traverse the sequence in reverse order, effectively creating a copy of the string backwards. This method is highly efficient and preferred over loop-based reversal in Python for its brevity and performance.</p>",
+            "py_2": "<p><strong>In-Place Swapping:</strong> Python allows you to swap values without a temporary variable using tuple packing and unpacking. The expression <code>b, a</code> on the right-hand side creates a temporary tuple containing the values of <code>b</code> and <code>a</code>. Python then immediately unpacks this tuple into the variables on the left-hand side, <code>a</code> and <code>b</code>. This operation is atomic in nature within the bytecode, making it cleaner and less error-prone than the traditional <code>temp = a; a = b; b = temp;</code> approach found in languages like C or Java.</p>",
+            "py_3": "<p><strong>Dictionary Merging:</strong> Introduced in Python 3.9, the union operator <code>|</code> provides a concise way to merge two dictionaries. The logic follows set theory: it creates a new dictionary containing all keys from both operands. Crucially, if a key exists in both dictionaries, the value from the right-hand operand (the second dictionary) takes precedence and overwrites the value from the left. This is a non-destructive operation, meaning the original dictionaries <code>a</code> and <code>b</code> remain unchanged.</p>",
+            "py_4": "<p><strong>The <code>setdefault()</code> Method:</strong> When counting frequencies, a common error is accessing a key that doesn't exist yet. The <code>setdefault(key, default_value)</code> method solves this elegantly. It checks if the <code>key</code> is present in the dictionary. If it is, it returns the existing value. If not, it inserts the <code>key</code> with the <code>default_value</code> (in this case, 0) and returns that. This allows us to immediately increment the count in the next step without worrying about <code>KeyError</code> exceptions.</p>",
+            "py_5": "<p><strong>Regex Grouping:</strong> Regular expressions allow for sophisticated pattern matching. In this example, parentheses <code>()</code> are used to create groups. <code>(0)?</code> matches the digit '0' zero or one time (optional). Similarly, <code>(\\+44)?</code> matches the country code '+44' optionally. <code>\\d{10}</code> matches exactly 10 digits. This logic allows the single regex pattern to validate multiple phone number formats, whether they start with a local zero, an international code, or neither.</p>",
+            "py_6": "<p><strong>Regex Pipe (OR Logic):</strong> The pipe character <code>|</code> within a regex group acts as a logical OR operator. The pattern <code>Super(man|woman|human)</code> tells the regex engine to look for the literal string 'Super' immediately followed by <em>either</em> 'man', 'woman', <em>or</em> 'human'. This is extremely useful for matching a set of specific variations without writing three separate regular expressions.</p>",
+            "py_7": "<p><strong>Set Theory Operations:</strong> Python sets are collections of unique elements that support mathematical set operations. The difference operator <code>-</code> returns elements present in the first set but not the second. The symmetric difference operator <code>^</code> (or <code>.symmetric_difference()</code>) returns elements that are in <em>either</em> of the sets, but not in <em>both</em> (essentially the union minus the intersection). This provides a highly efficient way to compare datasets.</p>",
+            "py_8": "<p><strong>Palindrome Logic:</strong> A palindrome reads the same forwards and backwards. To check this robustly, we first normalize the string using <code>casefold()</code>, which is a stronger version of <code>lower()</code> suitable for all languages. We then create a reversed iterator using <code>reversed()</code>. Finally, by converting both the original string and the reversed iterator into lists, we can compare them directly using the equality operator <code>==</code>. If they match, the structure is symmetrical.</p>",
+            "py_9": "<p><strong>File Hashing (Chunking):</strong> When hashing large files, loading the entire file into memory can cause a crash. The logic here uses a <code>while</code> loop to read the file in small, manageable binary chunks (1024 bytes). The <code>hashlib</code> object maintains an internal state that is updated with each chunk using <code>h.update()</code>. Once the end of the file is reached (empty byte string), <code>h.hexdigest()</code> computes the final hash fingerprint representing the entire file content.</p>",
+            "py_10": "<p><strong>List Flattening:</strong> This uses a nested list comprehension. The logic reads from left to right: <code>for sublist in my_list</code> iterates through the main outer list. Then, <code>for num in sublist</code> iterates through each inner list. The expression <code>num</code> at the start collects the individual items. It effectively unrolls the 2D structure into a 1D list in a single, readable line of code.</p>",
 
             // C++
-            "cpp_1": "<h4>I/O Streams</h4><p><code>cin >></code> extracts input. <code>cout <<</code> inserts output to console.</p>",
-            "cpp_2": "<h4>Quotient/Remainder</h4><p><code>/</code> is integer division (drops decimals). <code>%</code> is modulus (remainder).</p>",
-            "cpp_3": "<h4>Boolean Logic</h4><p><code>isalpha</code> checks if char is a letter. <code>||</code> is logical OR to check vowel conditions.</p>",
-            "cpp_4": "<h4>Quadratic Formula</h4><p>Calc discriminant <code>D = b*b - 4ac</code>. If D>0: 2 real roots. D=0: 1 real root. D<0: complex.</p>",
-            "cpp_5": "<h4>For Loop</h4><p>Standard loop: Init <code>i=1</code>, Condition <code>i<=10</code>, Update <code>++i</code>. Runs body 10 times.</p>",
-            "cpp_6": "<h4>Octal Conversion</h4><p>Base-8 system. Take last digit (<code>%10</code>), multiply by 8^pos, add to sum.</p>",
-            "cpp_7": "<h4>Structs</h4><p>Groups variables (name, roll) under one type <code>student</code>. Accessed via dot <code>s.roll</code>.</p>",
-            "cpp_8": "<h4>ASCII Filter</h4><p>Only appends char to new string if it falls in 'a-z' or 'A-Z' ASCII range.</p>",
-            "cpp_9": "<h4>Freq Count</h4><p>Linear search O(n). Increment count every time <code>str[i]</code> matches target.</p>",
-            "cpp_10": "<h4>Prime Check</h4><p>Divisible only by 1 and itself. Loop 2 to n/2. If <code>n%i==0</code>, not prime.</p>",
+            "cpp_1": "<p><strong>Input/Output Streams:</strong> C++ treats IO as streams of data. <code>cin</code> (character input) uses the extraction operator <code>>></code> to pull data from the input buffer into a variable. <code>cout</code> (character output) uses the insertion operator <code><<</code> to push data onto the output stream (console). The <code>using namespace std;</code> line allows us to use these standard names without prefixing them with <code>std::</code> every time.</p>",
+            "cpp_2": "<p><strong>Integer Arithmetic:</strong> In C++, division <code>/</code> between two integers results in integer division, meaning any fractional part is discarded (truncated). To get the remainder of the division, we use the modulus operator <code>%</code>. This logic is fundamental for algorithms involving cycles, even/odd checks, or converting numbers between different bases.</p>",
+            "cpp_3": "<p><strong>Boolean Logic Checks:</strong> This program determines if a character is a vowel by manually checking against all possibilities (a, e, i, o, u) for both lowercase and uppercase. The logical OR operator <code>||</code> combines these conditions; if <em>any</em> one of them is true, the variable becomes true. The <code>isalpha()</code> function is a critical validation step to ensure symbols or numbers aren't mistakenly processed.</p>",
+            "cpp_4": "<p><strong>Quadratic Formula Logic:</strong> The core of solving <code>ax^2 + bx + c = 0</code> lies in the discriminant, <code>D = b^2 - 4ac</code>. The logic branches based on D: if D > 0, we calculate two distinct real roots using the standard formula. If D == 0, the roots are real and identical. If D < 0, the roots are complex (involving imaginary numbers), requiring us to calculate the real and imaginary parts separately.</p>",
+            "cpp_5": "<p><strong>For Loop Iteration:</strong> The <code>for</code> loop provides a compact way to iterate. It consists of three parts: initialization (<code>int i = 1</code>), condition (<code>i <= 10</code>), and update (<code>++i</code>). The code block inside executes repeatedly as long as the condition remains true. This is the standard pattern for generating sequences like multiplication tables.</p>",
+            "cpp_6": "<p><strong>Base Conversion (Octal to Decimal):</strong> To convert from Octal (base-8) to Decimal (base-10), we extract digits from right to left using <code>% 10</code>. Each digit is then multiplied by 8 raised to the power of its position (0, 1, 2...). We accumulate this sum to get the decimal value. The loop continues, slicing off the last digit using <code>/ 10</code>, until the number becomes 0.</p>",
+            "cpp_7": "<p><strong>Structures (Structs):</strong> A <code>struct</code> is a user-defined data type that allows you to group variables of different types (like <code>char</code> for name, <code>int</code> for roll number, <code>float</code> for marks) under a single name. This logic models real-world entities better than loose variables. We access individual members of the structure using the dot operator, e.g., <code>s[i].name</code>.</p>",
+            "cpp_8": "<p><strong>ASCII Filtering:</strong> Characters in C++ are stored as ASCII integer values. To filter a string, we iterate through it and check if each character's value falls within the range of 'a' to 'z' OR 'A' to 'Z'. If it does, it's an alphabet, and we append it to our result string. Any character falling outside these ranges (like numbers or symbols) is ignored.</p>",
+            "cpp_9": "<p><strong>Linear Frequency Count:</strong> This algorithm iterates through the string one character at a time (O(n) complexity). Inside the loop, it compares the current character <code>str[i]</code> with the target character <code>checkCharacter</code>. If they match, a counter variable is incremented. This is the fundamental logic for searching and counting in arrays or strings.</p>",
+            "cpp_10": "<p><strong>Prime Checking Logic:</strong> A prime number is only divisible by 1 and itself. To check if <code>n</code> is prime, we try to divide it by every number from 2 up to <code>n/2</code>. We stop at <code>n/2</code> because no integer larger than half of <code>n</code> can divide <code>n</code> evenly (other than <code>n</code> itself). If we find <em>any</em> number that divides <code>n</code> with a remainder of 0, we immediately return <code>false</code>. If the loop finishes without finding a divisor, the number is prime.</p>",
 
             // SQL
-            "sql_1": "<h4>Calculated Columns</h4><p><code>amount+100</code> computes value on fly. Doesn't change DB data, just the view.</p>",
-            "sql_2": "<h4>Subtraction</h4><p>Similar to addition. <code>amount-20</code> creates a temporary column 'offer_price'.</p>",
-            "sql_3": "<h4>Multiplication</h4><p><code>amount*4</code> scales the value. useful for tax/quantity calcs.</p>",
-            "sql_4": "<h4>Division</h4><p><code>amount/2</code> halves the value. Integer division rules may apply depending on DB.</p>",
-            "sql_5": "<h4>Stored Proc</h4><p><code>DELIMITER //</code> tells SQL to treat the code block as one unit until <code>END //</code>.</p>",
-            "sql_6": "<h4>Multi-Param Proc</h4><p>Accepts <code>cus_id</code> and <code>max_amt</code>. Uses logic AND to filter results.</p>",
-            "sql_7": "<h4>BETWEEN</h4><p><code>BETWEEN X AND Y</code> includes both endpoints. Equivalent to <code>>= X AND <= Y</code>.</p>",
+            "sql_1": "<h4>Arithmetic in SELECT</h4><p>SQL allows you to perform arithmetic calculations directly within the <code>SELECT</code> statement. When we write <code>amount + 100</code>, the database engine calculates this value for every row in the result set on the fly. Importantly, this does <strong>not</strong> modify the actual data stored in the table; it only changes the data presented in the output view.</p>",
+            "sql_2": "<h4>Column Subtraction</h4><p>Similar to addition, we can derive new meaningful data points using subtraction. By selecting <code>amount - 20</code> and aliasing it as <code>offer_price</code> using the `AS` keyword, we create a virtual column that represents a discounted price. This logic is essential for reporting and generating views without altering the underlying schema.</p>",
+            "sql_3": "<h4>Data Scaling (Multiplication)</h4><p>Multiplication is often used to scale values, calculate taxes, or project totals. The query <code>amount * 4</code> assumes a scenario (like calculating total cost for quantity 4) and projects that value. This transformation happens at the projection layer of the SQL query execution order.</p>",
+            "sql_4": "<h4>Division Logic</h4><p>The expression <code>amount / 2</code> calculates half the value. It's important to note that depending on the SQL dialect and the data type of the <code>amount</code> column (e.g., Integer vs. Float), this might result in integer division (truncating decimals) or floating-point division. This logic is useful for calculating ratios or splitting costs.</p>",
+            "sql_5": "<h4>Stored Procedures</h4><p>A Stored Procedure is a batch of SQL code saved on the database server. The <code>DELIMITER //</code> command is crucial here: it tells the database client to stop interpreting the semicolon <code>;</code> as the end of the statement, allowing us to write multiple lines of code inside the procedure body (<code>BEGIN ... END</code>). We then reset the delimiter back to <code>;</code> afterwards.</p>",
+            "sql_6": "<h4>Multi-Parameter Logic</h4><p>This procedure accepts two inputs: <code>cus_id</code> and <code>max_amount</code>. It uses a <code>JOIN</code> operation to combine data from the <code>Customers</code> and <code>Orders</code> tables. The <code>WHERE</code> clause applies logic AND to filter records that match <em>both</em> criteria: the specific customer ID AND an order amount strictly less than the provided maximum.</p>",
+            "sql_7": "<h4>The BETWEEN Operator</h4><p>The logic of <code>amount BETWEEN 200 AND 600</code> is a shorthand for writing <code>amount >= 200 AND amount <= 600</code>. Crucially, the <code>BETWEEN</code> operator is <strong>inclusive</strong>, meaning it includes the boundary values (200 and 600) in the result set. This is highly optimized for range queries on indexed columns.</p>",
 
             // JAVA
-            "java_1": "<h4>Quadratic</h4><p>Uses <code>Math.sqrt()</code>. Logic identical to C++ but uses strict type safety (double).</p>",
-            "java_2": "<h4>Multiplication</h4><p><code>System.out.printf</code> allows formatted output (<code>%d</code> for integers).</p>",
-            "java_3": "<h4>Switch Case</h4><p>Jumps to matching <code>case</code>. <code>break</code> stops execution falling into next case.</p>",
-            "java_4": "<h4>Recursion (Sum)</h4><p>Calls itself <code>num + add(num-1)</code> until <code>num=0</code> (Base Case).</p>",
-            "java_5": "<h4>Recursion (Rev)</h4><p>Takes first char, moves to end. Recurses on rest of string.</p>",
-            "java_6": "<h4>For-Each</h4><p><code>for(double n : array)</code> iterates elements directly. No index `i` needed.</p>",
-            "java_7": "<h4>Matrix Add</h4><p>Nested loops required. Outer loop rows `i`, inner loop cols `j`. Add index-wise.</p>"
+            "java_1": "<h4>Quadratic Formula (Java)</h4><p>The logic mirrors the mathematical solution. We use <code>Math.sqrt()</code> from the <code>java.lang</code> package to handle the square root. Java forces strict type safety, so we declare variables as <code>double</code> to maintain precision for decimal calculations. The logic branches to handle positive, zero, and negative discriminants to avoid calculating the square root of a negative number without complex number logic.</p>",
+            "java_2": "<h4>Formatted Output</h4><p>The <code>System.out.printf</code> method brings C-style formatting to Java. The string <code>\"%d * %d = %d \\n\"</code> acts as a template, where <code>%d</code> is a placeholder for a decimal integer. The loop iterates 10 times, injecting the values of <code>num</code>, <code>i</code>, and their product into these placeholders, ensuring perfectly aligned output.</p>",
+            "java_3": "<h4>Switch-Case Logic</h4><p>The <code>switch</code> statement evaluates the <code>operator</code> variable once and jumps directly to the matching <code>case</code> label. This is generally more efficient than a long chain of <code>if-else-if</code> statements for simple equality checks. The <code>break</code> keyword is vital; without it, execution would 'fall through' to the next case, causing incorrect results.</p>",
+            "java_4": "<h4>Recursion (Summation)</h4><p>Recursion involves a method calling itself. Here, <code>addNumbers(num)</code> calculates the sum by returning <code>num + addNumbers(num - 1)</code>. This continues, building a stack of calls, until <code>num</code> reaches 0. This condition <code>if (num != 0)</code> is the <strong>Base Case</strong>. Without a base case, the recursion would continue indefinitely, causing a StackOverflowError.</p>",
+            "java_5": "<h4>Recursive String Reversal</h4><p>This logic reverses a string by breaking it down. <code>reverse(sentence.substring(1))</code> takes the string <em>without the first character</em> and recursively reverses it. Finally, <code>+ sentence.charAt(0)</code> appends the original first character to the <em>end</em> of the reversed substring. This unwinds to produce the fully reversed string.</p>",
+            "java_6": "<h4>Enhanced For-Loop (For-Each)</h4><p>The syntax <code>for (double num : numArray)</code> is the 'for-each' loop. It eliminates the need for an index variable (like <code>i</code>). It reads as 'for each double <code>num</code> inside the collection <code>numArray</code>'. This logic prevents 'Off-By-One' errors and makes iterating through arrays or collections strictly for reading data much cleaner.</p>",
+            "java_7": "<h4>Matrix Addition</h4><p>A matrix in Java is an array of arrays. To add them, we need to access every cell `(i, j)`. This requires nested loops: the outer loop <code>i</code> iterates through the rows, and the inner loop <code>j</code> iterates through the columns. We sum the values at the same position in the two source matrices: <code>sum[i][j] = first[i][j] + second[i][j]</code>.</p>"
         };
 
-        // --- CODE EXAMPLES ---
+        // --- FULL CODE EXAMPLES (34 Items) ---
         const codeExamples = {
             python: [
-                { id: "py_1", title: "1. Slicing", code: `a = "Hello World!"\nprint(a[::-1])` },
-                { id: "py_2", title: "2. Inplace Swap", code: `a = 10; b = 5\na, b = b, a` },
-                { id: "py_3", title: "3. Dictionary Merge", code: `a = {x:1}; b = {y:2}\nres = a | b` },
-                { id: "py_4", title: "4. setdefault()", code: `c = {}\nc.setdefault('word', 0)\nc['word'] += 1` },
-                { id: "py_5", title: "5. Regex Match", code: `re.search(r"(\+44)?\d{10}", text)` },
-                { id: "py_6", title: "6. Regex Pipe", code: `re.search(r"Super(man|woman)", text)` },
-                { id: "py_7", title: "7. Set Diff", code: `set(list2) - set(list1)` },
-                { id: "py_8", title: "8. Palindrome", code: `if list(s) == list(reversed(s))` },
-                { id: "py_9", title: "9. File Hash", code: `h = hashlib.sha1()\nh.update(chunk)` },
-                { id: "py_10", title: "10. Flatten List", code: `[i for sub in list for i in sub]` }
+                { id: "py_1", title: "1. Slicing", code: `a = "Hello World!"\nprint(a[::-1])\n\n# Output:\n# !dlroW olleH` },
+                { id: "py_2", title: "2. Inplace Swap", code: `a = 10\nb = 5\nprint(f"First: {a, b}")\n\na, b = b, a + 2\nprint(f"Second: {a, b}")\n\n# Output:\n# First: (10, 5)\n# Second: (5, 12)` },
+                { id: "py_3", title: "3. Merging Dictionaries", code: `a = {"a": 1, "b": 2}\nb = {"c": 3, "d": 4}\n\na_and_b = a | b\nprint(a_and_b)\n\n# Output:\n# {'a': 1, 'b': 2, 'c': 3, 'd': 4}` },
+                { id: "py_4", title: "4. The 'setdefault' Method", code: `import pprint\ntext = "It's the first of April..."\ncounts = {}\n\nfor word in text.split():\n    counts.setdefault(word, 0)\n    counts[word] += 1\n\npprint.pprint(counts)` },
+                { id: "py_5", title: "5. Matching Regex", code: `import re\n\nnumber = re.compile(r"(0)?(\+44)?\d{10}")\nnum_1 = number.search("My number is +447999999999")\nprint(num_1.group())` },
+                { id: "py_6", title: "6. Regex Pipe", code: `import re\nheros = re.compile(r"Super(man|woman|human)")\n\nh1 = heros.search("This will find Superman")\nprint(h1.group())` },
+                { id: "py_7", title: "7. Set Differences", code: `list_1 = [1, 3, 5, 7, 8]\nlist_2 = [1, 2, 3, 4, 5, 6, 7, 8, 9]\n\nsolution = list(set(list_2) - set(list_1))\nprint(solution)\n\n# Output: [2, 4, 6, 9]` },
+                { id: "py_8", title: "8. Palindrome Check", code: `my_str = 'aIbohPhoBiA'.casefold()\n\nif list(my_str) == list(reversed(my_str)):\n   print("The string is a palindrome.")\nelse:\n   print("The string is not a palindrome.")` },
+                { id: "py_9", title: "9. File Hashing", code: `import hashlib\n\ndef hash_file(filepath):\n   h = hashlib.sha1()\n   with open(filepath,'rb') as file:\n       while chunk := file.read(1024):\n           h.update(chunk)\n   return h.hexdigest()` },
+                { id: "py_10", title: "10. Flatten Nested List", code: `my_list = [[1], [2, 3], [4, 5, 6, 7]]\n\nflat_list = [num for sublist in my_list for num in sublist]\nprint(flat_list)` }
             ],
             cpp: [
-                { id: "cpp_1", title: "1. User Input", code: `cin >> number;\ncout << number;` },
-                { id: "cpp_2", title: "2. Quotient/Rem", code: `q = div / div;\nr = div % div;` },
-                { id: "cpp_3", title: "3. Vowel Check", code: `if (c=='a'||c=='e'...)` },
-                { id: "cpp_4", title: "4. Quadratic", code: `d = b*b - 4*a*c;` },
-                { id: "cpp_5", title: "5. Mult Table", code: `for(i=1;i<=10;i++)` },
-                { id: "cpp_6", title: "6. Octal->Dec", code: `rem = oct % 10;` },
-                { id: "cpp_7", title: "7. Structs", code: `struct s { char n[]; };` },
-                { id: "cpp_8", title: "8. Filter String", code: `if (isalpha(line[i]))` },
-                { id: "cpp_9", title: "9. Char Freq", code: `if(s[i]==c) count++;` },
-                { id: "cpp_10", title: "10. Primes", code: `if(n%i==0) return false;` }
+                { id: "cpp_1", title: "1. Print User Input", code: `#include <iostream>\nusing namespace std;\n\nint main() {\n    int number;\n    cout << "Enter an integer: ";\n    cin >> number;\n    cout << "You entered " << number;\n    return 0;\n}` },
+                { id: "cpp_2", title: "2. Quotient and Remainder", code: `quotient = dividend / divisor;\nremainder = dividend % divisor;\n\ncout << "Quotient = " << quotient << endl;\ncout << "Remainder = " << remainder;` },
+                { id: "cpp_3", title: "3. Check Vowel", code: `isLowercaseVowel = (c == 'a' || c == 'e' || ...);\nif (isLowercaseVowel || isUppercaseVowel)\n    cout << c << " is a vowel.";\nelse\n    cout << c << " is a consonant.";` },
+                { id: "cpp_4", title: "4. Roots of Quadratic", code: `discriminant = b*b - 4*a*c;\n\nif (discriminant > 0) {\n    x1 = (-b + sqrt(discriminant)) / (2*a);\n    x2 = (-b - sqrt(discriminant)) / (2*a);\n}` },
+                { id: "cpp_5", title: "5. Multiplication Table", code: `for (int i = 1; i <= 10; ++i) {\n    cout << n << " * " << i << " = " << n * i << endl;\n}` },
+                { id: "cpp_6", title: "6. Octal to Decimal", code: `while (octalNumber != 0) {\n    rem = octalNumber % 10;\n    octalNumber /= 10;\n    decimalNumber += rem * pow(8, i);\n    ++i;\n}` },
+                { id: "cpp_7", title: "7. Using Structures", code: `struct student {\n    char name[50];\n    int roll;\n} s[10];\n\n// Accessing\ns[i].roll = i+1;` },
+                { id: "cpp_8", title: "8. Remove Non-Alphabets", code: `for (int i = 0; i < line.size(); ++i) {\n    if ((line[i] >= 'a' && line[i] <= 'z') || \n        (line[i] >= 'A' && line[i] <= 'Z')) {\n        temp = temp + line[i];\n    }\n}` },
+                { id: "cpp_9", title: "9. Char Frequency", code: `for (int i = 0; i < str.size(); i++) {\n    if (str[i] ==  checkCharacter) {\n        ++ count;\n    }\n}` },
+                { id: "cpp_10", title: "10. Prime Numbers", code: `bool isPrime(int n) {\n    if (n == 0 || n == 1) return false;\n    for(int i = 2; i <= n/2; ++i) {\n      if (n % i == 0) return false;\n    }\n    return true;\n}` }
             ],
             sql: [
-                { id: "sql_1", title: "1. Addition", code: `SELECT amt+100 FROM Order;` },
-                { id: "sql_2", title: "2. Subtraction", code: `SELECT amt-20 FROM Order;` },
-                { id: "sql_3", title: "3. Multiplication", code: `SELECT amt*4 FROM Order;` },
-                { id: "sql_4", title: "4. Division", code: `SELECT amt/2 FROM Order;` },
-                { id: "sql_5", title: "5. Stored Proc", code: `CREATE PROCEDURE x...` },
-                { id: "sql_6", title: "6. Multi-Param", code: `WHERE id=x AND amt<y` },
-                { id: "sql_7", title: "7. BETWEEN", code: `WHERE x BETWEEN 1 AND 10` }
+                { id: "sql_1", title: "1. Addition Operator", code: `SELECT item, amount, amount+100 AS total_amount\nFROM Orders;` },
+                { id: "sql_2", title: "2. Subtraction Operator", code: `SELECT item, amount, amount-20 AS offer_price\nFROM Orders;` },
+                { id: "sql_3", title: "3. Multiplication Operator", code: `SELECT item, amount, amount*4 AS total_amount\nFROM Orders;` },
+                { id: "sql_4", title: "4. Division Operator", code: `SELECT item, amount, amount/2 AS half_amount\nFROM Orders;` },
+                { id: "sql_5", title: "5. Parameterized Procedure", code: `DELIMITER //\nCREATE PROCEDURE ctr_customers (ctr VARCHAR(50))\nBEGIN\n  SELECT customer_id, first_name\n  FROM Customers\n  WHERE Country = ctr;\nEND //\nDELIMITER ;` },
+                { id: "sql_6", title: "6. Multiple Parameters", code: `CREATE PROCEDURE order_details (cus_id INT, max_amount INT)\nBEGIN\n  SELECT * FROM Orders\n  WHERE customer_id = cus_id AND amount < max_amount;\nEND //` },
+                { id: "sql_7", title: "7. BETWEEN Operator", code: `SELECT * \nFROM Orders\nWHERE amount BETWEEN 200 AND 600;` }
             ],
             java: [
-                { id: "java_1", title: "1. Quadratic", code: `x = (-b + Math.sqrt(d))/2a` },
-                { id: "java_2", title: "2. Mult Table", code: `System.out.printf(...)` },
-                { id: "java_3", title: "3. Calculator", code: `switch(op) { case '+': ... }` },
-                { id: "java_4", title: "4. Recur Sum", code: `return n + add(n-1)` },
-                { id: "java_5", title: "5. Recur Rev", code: `return rev(sub) + char` },
-                { id: "java_6", title: "6. Array Avg", code: `for(double n : arr)` },
-                { id: "java_7", title: "7. Matrix Add", code: `sum[i][j] = a[i][j]+b[i][j]` }
+                { id: "java_1", title: "1. Quadratic Roots", code: `double discriminant = b * b - 4 * a * c;\n\nif (discriminant > 0) {\n  root1 = (-b + Math.sqrt(discriminant)) / (2 * a);\n  root2 = (-b - Math.sqrt(discriminant)) / (2 * a);\n}` },
+                { id: "java_2", title: "2. Multiplication Table", code: `for(int i = 1; i <= 10; ++i) {\n    System.out.printf("%d * %d = %d \\n", num, i, num * i);\n}` },
+                { id: "java_3", title: "3. Switch Calculator", code: `switch (operator) {\n  case '+':\n    result = number1 + number2;\n    break;\n  case '-':\n    result = number1 - number2;\n    break;\n  // ... other cases\n}` },
+                { id: "java_4", title: "4. Recursion Sum", code: `public static int addNumbers(int num) {\n    if (num != 0)\n        return num + addNumbers(num - 1);\n    else\n        return num;\n}` },
+                { id: "java_5", title: "5. Recursion Reverse", code: `public static String reverse(String sentence) {\n  if (sentence.isEmpty())\n    return sentence;\n\n  return reverse(sentence.substring(1)) + sentence.charAt(0);\n}` },
+                { id: "java_6", title: "6. Array Average", code: `for (double num: numArray) {\n   sum += num;\n}\ndouble average = sum / numArray.length;` },
+                { id: "java_7", title: "7. Add Matrices", code: `for(int i = 0; i < rows; i++) {\n    for (int j = 0; j < columns; j++) {\n        sum[i][j] = firstMatrix[i][j] + secondMatrix[i][j];\n    }\n}` }
             ]
         };
 
-        // --- APP LOGIC ---
+        // --- GEMINI AI ANALYSIS (with Retry Logic) ---
+        async function callGeminiWithRetry(prompt, retries = 3, delay = 1000) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 429) throw new Error("Rate Limit"); // Retry on rate limit
+                        throw new Error(`API Error: ${response.status}`); // Don't retry other errors
+                    }
+                    
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No analysis available.";
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(res => setTimeout(res, delay * Math.pow(2, i))); // Exponential backoff
+                }
+            }
+        }
+
+        // --- UI FUNCTIONS ---
         function switchTab(tab) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tab}`).classList.remove('hidden');
@@ -269,7 +303,7 @@
                         <h4 class="font-semibold text-sky-400 line-clamp-1">${ex.title}</h4>
                         <button onclick="openLogic('${ex.id}')" class="text-xs bg-sky-600 hover:bg-sky-500 text-white px-3 py-1 rounded shadow transition whitespace-nowrap ml-2">Logic</button>
                     </div>
-                    <pre class="bg-[#0d1117] p-3 rounded text-xs overflow-x-auto border border-slate-800 flex-1"><code>${ex.code.replace(/</g, '&lt;')}</code></pre>
+                    <pre class="bg-[#0d1117] p-3 rounded text-xs overflow-x-auto border border-slate-800 flex-1 custom-scroll"><code>${ex.code.replace(/</g, '&lt;')}</code></pre>
                     <div class="mt-4 text-right">
                         <button onclick="startPractice('${ex.title}')" class="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-2 ml-auto transition border border-slate-700 px-3 py-2 rounded hover:border-emerald-500/50">
                             <i class="fa-solid fa-pen-to-square"></i> Write Test
@@ -287,12 +321,11 @@
             const modal = document.getElementById('logicModal');
             const body = document.getElementById('logicBody');
             
-            // Fallback if logic is missing (prevents empty box)
             const content = logicData[id];
             if (content) {
                 body.innerHTML = content;
             } else {
-                body.innerHTML = `<div class="text-slate-400 p-4 text-center">Logic details coming soon for: <span class="text-sky-400 font-mono">${id}</span></div>`;
+                body.innerHTML = `<div class="text-slate-400 p-8 text-center">Detailed logic explanation is currently being written for: <span class="text-sky-400 font-mono block mt-2">${id}</span></div>`;
             }
             
             modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -324,21 +357,28 @@
                 } else {
                     document.getElementById('no-progress-msg').classList.add('hidden');
                     list.innerHTML = data.map(d => `
-                        <div class="flex items-center justify-between p-3 bg-slate-800/40 rounded-lg border border-slate-700 hover:bg-slate-800 transition">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-check"></i></div>
+                        <div class="flex items-center justify-between p-4 bg-slate-800/40 rounded-xl border border-slate-700 hover:bg-slate-800 transition animate-fade-in">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-900/20 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/30">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
                                 <div>
-                                    <div class="font-semibold text-sm text-white">${d.quizName}</div>
-                                    <div class="text-xs text-slate-500">${new Date(d.completedAt).toLocaleDateString()}</div>
+                                    <div class="font-bold text-base text-white">${d.quizName}</div>
+                                    <div class="text-xs text-slate-500 flex items-center gap-2 mt-1">
+                                        <i class="fa-regular fa-calendar"></i> ${new Date(d.completedAt).toLocaleDateString()}
+                                        <span class="w-1 h-1 rounded-full bg-slate-600"></span>
+                                        <span>Score: ${d.score}/${d.maxScore}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <span class="text-xs bg-sky-500/10 text-sky-400 px-2 py-1 rounded border border-sky-500/20">Practice</span>
+                            <span class="text-xs font-bold bg-sky-500/10 text-sky-400 px-3 py-1.5 rounded-lg border border-sky-500/20 tracking-wide uppercase">Completed</span>
                         </div>
                     `).join('');
                 }
             } catch(e) { console.log("Offline"); }
         }
 
+        // --- EVENT LISTENERS ---
         document.getElementById('practiceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitPracticeBtn');
@@ -359,7 +399,7 @@
                 });
 
                 if(res.ok) {
-                    result.innerHTML = '<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check-circle"></i> Saved!</span>';
+                    result.innerHTML = '<span class="text-emerald-400 font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-circle-check"></i> Saved to Activity!</span>';
                     result.classList.remove('hidden');
                     e.target.reset();
                     setTimeout(() => { switchTab('dashboard'); result.classList.add('hidden'); }, 1500);
@@ -370,6 +410,39 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-save"></i> Save Progress';
+            }
+        });
+
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const code = document.getElementById('practiceCode').value;
+            const feedbackBox = document.getElementById('aiFeedback');
+            const btn = document.getElementById('analyzeBtn');
+
+            if(!code.trim()) {
+                alert("Please enter some code to analyze.");
+                return;
+            }
+
+            if(!apiKey) {
+                feedbackBox.innerHTML = "<span class='text-yellow-400'>Note: Gemini API Key is missing in the code. Please add your API key to index.html to use this feature.</span>";
+                feedbackBox.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+            feedbackBox.innerHTML = "Connecting to AI...";
+            feedbackBox.classList.remove('hidden');
+
+            try {
+                const prompt = `You are a coding tutor. Analyze this code for logic and correctness. Be brief and encouraging:\n\n${code}`;
+                const analysis = await callGeminiWithRetry(prompt);
+                feedbackBox.innerHTML = marked.parse(analysis);
+            } catch (err) {
+                feedbackBox.innerHTML = `<span class="text-red-400">AI Error: ${err.message}</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-robot"></i> Analyze with Gemini';
             }
         });
 
